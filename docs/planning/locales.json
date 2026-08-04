@@ -1,0 +1,16 @@
+{
+  "defaultLocale": "ru",
+  "locales": ["ru", "en"],
+  "prefixDefaultLocale": false,
+  "englishPrefix": "/en/",
+  "recommendedSlugStrategy": "localized-slugs-by-stable-route-id",
+  "status": "approved-languages; slug strategy pending foundation confirmation",
+  "rules": [
+    "Russian pages use unprefixed canonical routes",
+    "English pages use /en/ and human-reviewed translations",
+    "Language switch resolves by route ID, not string replacement",
+    "Each locale has self-canonical and reciprocal hreflang",
+    "Only published translations enter sitemap",
+    "Do not index raw machine translation or mixed-language fallback"
+  ]
+}
