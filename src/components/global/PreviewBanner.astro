@@ -1,0 +1,51 @@
+---
+// Preview-only banner. Rendered by BaseLayout solely when
+// PUBLIC_SITE_ENV === "preview". Static in-flow bar: it can never overlay
+// page content or a focused element. No JS, no Motion, no live region, no
+// links and no focusable elements — a plain semantic label, not a control.
+
+const { locale } = Astro.props;
+
+// BaseLayout already validates locale (ru/en only); ru is the safe default.
+const copy = {
+  ru: {
+    ariaLabel: "Preview-версия",
+    text: "Preview-версия — не production.",
+  },
+  en: {
+    ariaLabel: "Preview version",
+    text: "Preview version — not production.",
+  },
+}[locale] ?? {
+  ariaLabel: "Preview-версия",
+  text: "Preview-версия — не production.",
+};
+---
+
+<aside class="preview-banner" aria-label={copy.ariaLabel} data-preview-banner>
+  <p class="preview-banner__text">{copy.text}</p>
+</aside>
+
+<style>
+  /* action/canvas always have opposite polarity in both themes, so the bar
+   * stays high-contrast in portal (light text on dark canvas) and editorial
+   * (dark text on light canvas) without one-off colors. */
+  .preview-banner {
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    padding: var(--dd-space-xs) var(--dd-space-sm);
+    font-family: var(--dd-font-body);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .preview-banner__text {
+    margin: 0;
+    overflow-wrap: break-word;
+  }
+
+  /* No animation anywhere — prefers-reduced-motion is satisfied by
+   * construction. Static position: no z-index token needed, nothing can be
+   * covered. */
+</style>

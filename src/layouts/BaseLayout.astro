@@ -1,8 +1,9 @@
 ---
 // Base HTML shell: metadata, canonical, hreflang, OG/Twitter, JSON-LD.
-// No Header/Footer/PreviewBanner and no client-side JS — those land in
-// dedicated components on later phases.
+// No Header/Footer and no client-side JS — those land in dedicated
+// components on later phases.
 import "../styles/global.css";
+import PreviewBanner from "../components/global/PreviewBanner.astro";
 import { site } from "../data/site.js";
 import { defaultLocale, getLocaleMeta } from "../data/locales.js";
 import { findNodeById } from "../data/site-tree.js";
@@ -25,6 +26,14 @@ const {
 } = Astro.props;
 
 const meta = getLocaleMeta(locale);
+
+// Preview builds (PUBLIC_SITE_ENV=preview) are never indexed, always show
+// the banner and expose a machine-readable environment marker. Production
+// builds (variable unset) get only the marker — metadata, canonical,
+// hreflang, JSON-LD and rendered content are unchanged.
+const isPreview = import.meta.env.PUBLIC_SITE_ENV === "preview";
+const effectiveNoindex = noindex || isPreview;
+const siteEnv = isPreview ? "preview" : "production";
 
 // Fail-fast build-time validation: a page with broken SEO metadata must not
 // compile silently.
@@ -76,13 +85,13 @@ const ogImageUrl = ogImage ? canonicalUrl(ogImage) : null;
 const jsonLdItems = (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).filter(Boolean);
 ---
 <!doctype html>
-<html lang={meta.htmlLang} data-theme={theme}>
+<html lang={meta.htmlLang} data-theme={theme} data-site-env={siteEnv}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {effectiveNoindex && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     {
       hreflangLinks.map((link) => (
@@ -124,6 +133,7 @@ const jsonLdItems = (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).filter(Boolean);
     }
   </head>
   <body>
+    {isPreview && <PreviewBanner locale={locale} />}
     <slot />
   </body>
 </html>
