@@ -1,0 +1,12 @@
+# deladelishki.ru — static Astro build on Timeweb shared hosting.
+# Nginx serves static assets (CSS/JS/images/fonts) directly, so cache and
+# security headers for those files are NOT controlled here — see
+# docs/project-guide/01_HOSTING_AND_STATIC_ARCHITECTURE.md.
+# Apache handles error documents and directory behavior. No PHP/backend
+# rules belong in this file.
+
+# Branded 404 page for unknown URLs.
+ErrorDocument 404 /404.html
+
+# Disable directory listing for Apache-handled requests.
+Options -Indexes

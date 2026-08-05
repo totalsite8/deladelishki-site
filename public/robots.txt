@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://deladelishki.ru/sitemap-index.xml

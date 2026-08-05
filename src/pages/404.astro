@@ -1,0 +1,83 @@
+---
+// Branded 404. Portal theme, noindex, Russian copy. Rendered with the
+// global shell (SkipLink/Header/Footer) through BaseLayout like any page.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { site } from "../data/site.js";
+
+const title = "Страница не найдена — Dela Delishki";
+const description =
+  "Запрошенная страница не найдена. Вернитесь на главную deladelishki.ru или свяжитесь с Данилой Подшиваловым напрямую.";
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale="ru"
+  noindex={true}
+  theme="portal"
+>
+  <main class="not-found">
+    <p class="not-found__code" aria-hidden="true">404</p>
+    <h1 class="not-found__title">Страница не найдена</h1>
+    <p class="not-found__text">
+      Такой страницы нет или она переехала. Можно вернуться на главную или
+      написать напрямую — помогу найти нужное.
+    </p>
+    <p class="not-found__actions">
+      <a class="not-found__home" href="/">На главную</a>
+      <a class="not-found__mail" href={site.emailHref}>{site.email}</a>
+    </p>
+  </main>
+</BaseLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    gap: var(--dd-space-sm);
+    width: 100%;
+    max-width: var(--dd-measure);
+    margin-inline: auto;
+    padding: var(--dd-space-xl) var(--dd-space-md);
+  }
+
+  .not-found__code {
+    margin: 0;
+    color: var(--dd-color-action);
+    font-family: var(--dd-font-display);
+    font-size: clamp(3rem, 2rem + 8vw, 7rem);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .not-found__title {
+    margin: 0;
+  }
+
+  .not-found__text {
+    margin: 0;
+    color: var(--dd-color-muted);
+  }
+
+  .not-found__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dd-space-sm) var(--dd-space-md);
+    margin: 0;
+  }
+
+  .not-found__home {
+    display: inline-block;
+    padding: var(--dd-space-xs) var(--dd-space-sm);
+    border-radius: var(--dd-radius-md);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .not-found__home:hover {
+    background-color: var(--dd-color-action-hover);
+    color: var(--dd-color-canvas);
+  }
+</style>
