@@ -1,0 +1,129 @@
+---
+// Base HTML shell: metadata, canonical, hreflang, OG/Twitter, JSON-LD.
+// No Header/Footer/PreviewBanner and no client-side JS — those land in
+// dedicated components on later phases.
+import "../styles/global.css";
+import { site } from "../data/site.js";
+import { defaultLocale, getLocaleMeta } from "../data/locales.js";
+import { findNodeById } from "../data/site-tree.js";
+import {
+  canonicalUrl,
+  localizedCanonical,
+  buildHreflangLinks,
+  serializeJsonLd,
+} from "../lib/seo.js";
+
+const {
+  title,
+  description,
+  locale = defaultLocale,
+  routeId,
+  noindex = false,
+  ogImage,
+  jsonLd = [],
+  theme = "portal",
+} = Astro.props;
+
+const meta = getLocaleMeta(locale);
+
+// Fail-fast build-time validation: a page with broken SEO metadata must not
+// compile silently.
+if (typeof title !== "string" || title.trim() === "") {
+  throw new Error(
+    `BaseLayout: "title" must be a non-empty string (routeId: ${routeId ?? "none"}, locale: ${locale}).`,
+  );
+}
+if (typeof description !== "string" || description.trim() === "") {
+  throw new Error(
+    `BaseLayout: "description" must be a non-empty string (routeId: ${routeId ?? "none"}, locale: ${locale}).`,
+  );
+}
+if (theme !== "portal" && theme !== "editorial") {
+  throw new Error(
+    `BaseLayout: "theme" must be "portal" or "editorial", got "${String(theme)}" (routeId: ${routeId ?? "none"}, locale: ${locale}).`,
+  );
+}
+const node = routeId ? findNodeById(routeId) : null;
+if (routeId && !node) {
+  throw new Error(
+    `BaseLayout: unknown routeId "${routeId}" — no such node in the site tree (locale: ${locale}).`,
+  );
+}
+if (routeId && !noindex) {
+  if (node.localeStatus?.[locale] !== "published") {
+    throw new Error(
+      `BaseLayout: routeId "${routeId}" locale "${locale}" is not published; use noindex for drafts/planned locales.`,
+    );
+  }
+  if (!node.paths?.[locale]) {
+    throw new Error(
+      `BaseLayout: routeId "${routeId}" has no path for published locale "${locale}".`,
+    );
+  }
+}
+
+// Published routeId/locale: canonical comes from the site tree. Drafts
+// (noindex) and pages without routeId canonicalize to the actual pathname,
+// so a planned locale path is never advertised as canonical.
+const canonical =
+  (routeId ? localizedCanonical(routeId, locale) : null) ??
+  canonicalUrl(Astro.url.pathname);
+const hreflangLinks = routeId ? buildHreflangLinks(routeId) : [];
+const alternateLocales = hreflangLinks.filter(
+  (link) => link.hreflang !== "x-default" && link.hreflang !== locale,
+);
+const ogImageUrl = ogImage ? canonicalUrl(ogImage) : null;
+const jsonLdItems = (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).filter(Boolean);
+---
+<!doctype html>
+<html lang={meta.htmlLang} data-theme={theme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={canonical} />
+    {
+      hreflangLinks.map((link) => (
+        <link rel="alternate" hreflang={link.hreflang} href={link.href} />
+      ))
+    }
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={meta.ogLocale} />
+    {
+      alternateLocales.map((link) => (
+        <meta
+          property="og:locale:alternate"
+          content={getLocaleMeta(link.hreflang).ogLocale}
+        />
+      ))
+    }
+    {ogImageUrl && <meta property="og:image" content={ogImageUrl} />}
+    <meta
+      name="twitter:card"
+      content={ogImageUrl ? "summary_large_image" : "summary"}
+    />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    {ogImageUrl && <meta name="twitter:image" content={ogImageUrl} />}
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    {
+      jsonLdItems.map((item) => (
+        <script
+          type="application/ld+json"
+          is:inline
+          set:html={serializeJsonLd(item)}
+        />
+      ))
+    }
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
