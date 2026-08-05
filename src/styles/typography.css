@@ -1,0 +1,145 @@
+/* Typography and document foundation for deladelishki.ru.
+ *
+ * Global element defaults only: box model, fluid type scale, readable body
+ * text, safe wrapping for long Russian words/URLs, media constraints, form
+ * font inheritance, focus and selection states, reduced-motion baseline.
+ * No page-specific styling or animations live here.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  background-color: var(--dd-color-canvas);
+  color: var(--dd-color-text);
+  font-family: var(--dd-font-body);
+  font-size: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+/* Fluid display scale. Headings wrap safely at 320px. */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--dd-font-display);
+  font-weight: 700;
+  line-height: 1.15;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 1.25rem + 2.5vw, 3rem);
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: clamp(1.4rem, 1.1rem + 1.5vw, 2.1rem);
+}
+
+h3 {
+  font-size: clamp(1.2rem, 1rem + 1vw, 1.6rem);
+}
+
+h4 {
+  font-size: clamp(1.1rem, 0.98rem + 0.6vw, 1.3rem);
+}
+
+h5,
+h6 {
+  font-size: 1rem;
+}
+
+/* Long Russian words and bare URLs must never force horizontal overflow. */
+p,
+li,
+figcaption,
+blockquote,
+td,
+th {
+  overflow-wrap: break-word;
+}
+
+a {
+  color: var(--dd-color-action);
+  overflow-wrap: break-word;
+}
+
+a:hover {
+  color: var(--dd-color-action-hover);
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--dd-font-mono);
+  font-size: 0.95em;
+}
+
+pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+/* Media never exceeds its container. */
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Form controls inherit the document font instead of UA defaults. */
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Visible keyboard focus in both themes. */
+:focus-visible {
+  outline: 2px solid var(--dd-color-focus);
+  outline-offset: 2px;
+}
+
+/* Theme-safe text selection. */
+::selection {
+  background-color: var(--dd-color-action);
+  color: var(--dd-color-canvas);
+}
+
+/* Reduced motion: collapse motion to near-instant, but keep the state
+ * change itself — color, visibility and content updates still apply, so
+ * interactive feedback is preserved rather than removed. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    transition-duration: 0.01ms;
+  }
+}
