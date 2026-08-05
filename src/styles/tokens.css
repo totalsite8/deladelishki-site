@@ -1,0 +1,133 @@
+/* Design tokens for deladelishki.ru.
+ *
+ * Two layers, on purpose:
+ * 1. `--dd-*` — internal semantic tokens. `:root` holds safe fallbacks, and
+ *    `[data-theme="portal"]` / `[data-theme="editorial"]` override the color
+ *    tokens. These are the values raw CSS should reference.
+ * 2. `@theme inline` — maps a small public vocabulary (canvas, surface,
+ *    foreground, ...) onto the `--dd-*` tokens so Tailwind utilities like
+ *    `bg-canvas` or `text-foreground` follow the active theme. No token ever
+ *    references itself.
+ */
+
+:root {
+  /* Brand territory: decorative accents only. Never used for body text or
+   * focus indication (those use the semantic tokens below). */
+  --dd-brand-deep-violet: #3b0764;
+  --dd-brand-purple: #7c3aed;
+  --dd-brand-electric: #a855f7;
+
+  /* Safe fallback semantic colors (match the portal theme). */
+  --dd-color-canvas: #0c0913;
+  --dd-color-surface: #16101f;
+  --dd-color-text: #f3effa;
+  --dd-color-muted: #b3a9c9;
+  --dd-color-border: #2d2440;
+  --dd-color-action: #a78bfa;
+  --dd-color-action-hover: #c4b5fd;
+  --dd-color-focus: #d8b4fe;
+
+  /* System-only font stacks. No webfonts, no @font-face, no CDN. A licensed
+   * display face can later replace --dd-font-display in this one spot. */
+  --dd-font-display:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --dd-font-body:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+  --dd-font-mono:
+    ui-monospace, "Cascadia Mono", "Segoe UI Mono", Consolas,
+    "Liberation Mono", Menlo, monospace;
+
+  /* Fluid spacing scale. */
+  --dd-space-xs: clamp(0.5rem, 0.45rem + 0.25vw, 0.75rem);
+  --dd-space-sm: clamp(0.75rem, 0.65rem + 0.5vw, 1.25rem);
+  --dd-space-md: clamp(1rem, 0.85rem + 0.75vw, 1.75rem);
+  --dd-space-lg: clamp(1.5rem, 1.2rem + 1.5vw, 3rem);
+  --dd-space-xl: clamp(2.5rem, 1.9rem + 3vw, 5.5rem);
+  --dd-space-2xl: clamp(4rem, 3rem + 5vw, 9rem);
+
+  /* Radii. */
+  --dd-radius-sm: 0.375rem;
+  --dd-radius-md: 0.625rem;
+  --dd-radius-lg: 1rem;
+  --dd-radius-full: 9999px;
+
+  /* Subtle shadows (dark-theme fallbacks). */
+  --dd-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --dd-shadow-md: 0 4px 16px rgb(0 0 0 / 0.45);
+  --dd-shadow-lg: 0 12px 40px rgb(0 0 0 / 0.5);
+
+  /* Stacking order vocabulary. */
+  --dd-z-header: 40;
+  --dd-z-overlay: 50;
+  --dd-z-modal: 60;
+  --dd-z-toast: 70;
+
+  /* Readable text measure. */
+  --dd-measure: 65ch;
+  --dd-measure-wide: 75ch;
+
+  /* Motion vocabulary. */
+  --dd-duration-fast: 160ms;
+  --dd-duration-base: 240ms;
+  --dd-duration-slow: 600ms;
+  --dd-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dd-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Portal: dark technological context (home, services, AI, apps). */
+[data-theme="portal"] {
+  color-scheme: dark;
+  --dd-color-canvas: #0c0913;
+  --dd-color-surface: #16101f;
+  --dd-color-text: #f3effa;
+  --dd-color-muted: #b3a9c9;
+  --dd-color-border: #2d2440;
+  --dd-color-action: #a78bfa;
+  --dd-color-action-hover: #c4b5fd;
+  --dd-color-focus: #d8b4fe;
+  --dd-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --dd-shadow-md: 0 4px 16px rgb(0 0 0 / 0.45);
+  --dd-shadow-lg: 0 12px 40px rgb(0 0 0 / 0.5);
+}
+
+/* Editorial: light minimal context (blog, courses, forms, legal). */
+[data-theme="editorial"] {
+  color-scheme: light;
+  --dd-color-canvas: #faf9fc;
+  --dd-color-surface: #ffffff;
+  --dd-color-text: #191325;
+  --dd-color-muted: #575069;
+  --dd-color-border: #e4def0;
+  --dd-color-action: #6d28d9;
+  --dd-color-action-hover: #5b21b6;
+  --dd-color-focus: #7c3aed;
+  --dd-shadow-sm: 0 1px 2px rgb(46 16 101 / 0.08);
+  --dd-shadow-md: 0 4px 16px rgb(46 16 101 / 0.1);
+  --dd-shadow-lg: 0 12px 40px rgb(46 16 101 / 0.12);
+}
+
+/* Public Tailwind vocabulary -> internal semantic tokens. */
+@theme inline {
+  --color-canvas: var(--dd-color-canvas);
+  --color-surface: var(--dd-color-surface);
+  --color-foreground: var(--dd-color-text);
+  --color-muted: var(--dd-color-muted);
+  --color-border: var(--dd-color-border);
+  --color-action: var(--dd-color-action);
+  --color-action-hover: var(--dd-color-action-hover);
+  --color-focus: var(--dd-color-focus);
+
+  --font-display: var(--dd-font-display);
+  --font-body: var(--dd-font-body);
+  --font-mono: var(--dd-font-mono);
+
+  --radius-sm: var(--dd-radius-sm);
+  --radius-md: var(--dd-radius-md);
+  --radius-lg: var(--dd-radius-lg);
+
+  --shadow-sm: var(--dd-shadow-sm);
+  --shadow-md: var(--dd-shadow-md);
+  --shadow-lg: var(--dd-shadow-lg);
+}

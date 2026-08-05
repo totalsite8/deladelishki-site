@@ -1,6 +1,21 @@
 ---
-import Layout from "../layouts/Layout.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { personJsonLd, websiteJsonLd } from "../lib/seo.js";
+
+const title = "Dela Delishki — digital-портал Данилы Подшивалова";
+const description =
+  "Услуги, кейсы, блог, база промптов, курсы и инструменты: разработка, дизайн, маркетинг и AI от Данилы Подшивалова.";
 ---
-<Layout>
-  <h1 class="text-4xl font-bold text-blue-600">DelaDelishki</h1>
-</Layout>
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale="ru"
+  routeId="home"
+  theme="portal"
+  jsonLd={[websiteJsonLd("ru"), personJsonLd()]}
+>
+  <main>
+    <h1>Dela Delishki — digital-портал Данилы Подшивалова</h1>
+  </main>
+</BaseLayout>
