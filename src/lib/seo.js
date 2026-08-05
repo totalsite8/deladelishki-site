@@ -40,9 +40,9 @@ export function buildHreflangLinks(routeId) {
 }
 
 // Serializes JSON-LD for inline <script> embedding. "<" is escaped as
-// < so the payload can never break out of the script tag; U+2028 and
-// U+2029 are escaped because they are valid in JSON but not in JavaScript
-// string literals parsed by older engines.
+// \u003c so the payload can never break out of the script tag; U+2028 is
+// escaped as \u2028 and U+2029 as \u2029 because they are valid in JSON but
+// not in JavaScript string literals parsed by older engines.
 export function serializeJsonLd(data) {
   return JSON.stringify(data)
     .replace(/</g, "\\u003c")

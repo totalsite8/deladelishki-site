@@ -97,13 +97,18 @@ pre {
   max-width: 100%;
 }
 
-/* Media never exceeds its container. */
+/* Media never exceeds its container. height:auto applies only to replaced
+ * elements with intrinsic dimensions; canvas and svg keep their own aspect
+ * behavior (a global height:auto would distort fixed-size canvases). */
 img,
-video,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
 canvas,
 svg {
   max-width: 100%;
-  height: auto;
 }
 
 /* Form controls inherit the document font instead of UA defaults. */
@@ -132,14 +137,14 @@ select {
  * interactive feedback is preserved rather than removed. */
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: auto;
+    scroll-behavior: auto !important;
   }
 
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms;
-    animation-iteration-count: 1;
-    transition-duration: 0.01ms;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
