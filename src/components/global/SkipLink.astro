@@ -1,0 +1,42 @@
+---
+// Skip link — the first focusable element on every page. Visually hidden
+// until keyboard focus, then appears above the header. Points to the
+// stable #main-content target that BaseLayout wraps around the page slot.
+// No JS, no Motion; reduced-motion is handled by the global baseline.
+
+const { locale } = Astro.props;
+
+// BaseLayout already validates locale (ru/en only); ru is the safe default.
+const label = {
+  ru: "Перейти к основному содержимому",
+  en: "Skip to main content",
+}[locale] ?? "Перейти к основному содержимому";
+---
+
+<a class="skip-link" href="#main-content">{label}</a>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: var(--dd-space-xs);
+    inset-inline-start: var(--dd-space-xs);
+    z-index: var(--dd-z-toast);
+    display: inline-block;
+    padding: var(--dd-space-xs) var(--dd-space-sm);
+    border-radius: var(--dd-radius-md);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 600;
+    text-decoration: none;
+    opacity: 0;
+    transform: translateY(-200%);
+    transition:
+      transform var(--dd-duration-fast) var(--dd-ease-out),
+      opacity var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .skip-link:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
+</style>

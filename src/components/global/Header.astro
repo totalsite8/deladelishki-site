@@ -1,0 +1,124 @@
+---
+// Global header: brand link plus primary navigation derived from the
+// canonical site tree (src/data/site-tree.js). Only locale-published
+// top-level routes are rendered — planned hubs appear automatically as
+// their pages are published, and unpublished routes never become dead
+// production links. Semantic HTML only: no JS, no Motion.
+import siteTree, { homeRoute } from "../../data/site-tree.js";
+import { site } from "../../data/site.js";
+
+const { locale } = Astro.props;
+
+const homePath = homeRoute.paths[locale] ?? homeRoute.paths.ru;
+
+const navItems = siteTree
+  .filter(
+    (node) =>
+      node.status !== "utility" &&
+      node.localeStatus?.[locale] === "published" &&
+      node.paths?.[locale],
+  )
+  .sort((a, b) => a.order - b.order)
+  .map((node) => ({ title: node.title, href: node.paths[locale] }));
+
+const currentPath = Astro.url.pathname;
+
+const copy = {
+  ru: { nav: "Основная навигация", home: "Dela Delishki — на главную" },
+  en: { nav: "Primary navigation", home: "Dela Delishki — home" },
+}[locale] ?? {
+  nav: "Основная навигация",
+  home: "Dela Delishki — на главную",
+};
+---
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a
+      class="site-header__brand"
+      href={homePath}
+      aria-label={copy.home}
+      aria-current={currentPath === homePath ? "page" : undefined}
+    >
+      {site.name}
+    </a>
+    {
+      navItems.length > 0 && (
+        <nav class="site-header__nav" aria-label={copy.nav}>
+          <ul class="site-header__list">
+            {navItems.map((item) => (
+              <li class="site-header__item">
+                <a
+                  class="site-header__link"
+                  href={item.href}
+                  aria-current={
+                    currentPath === item.href ? "page" : undefined
+                  }
+                >
+                  {item.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+  </div>
+</header>
+
+<style>
+  .site-header {
+    border-bottom: 1px solid var(--dd-color-border);
+    background-color: var(--dd-color-canvas);
+  }
+
+  .site-header__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--dd-space-xs) var(--dd-space-md);
+    width: 100%;
+    padding: var(--dd-space-xs) var(--dd-space-md);
+  }
+
+  .site-header__brand {
+    display: inline-block;
+    padding: var(--dd-space-xs) 0;
+    color: var(--dd-color-text);
+    font-family: var(--dd-font-display);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-header__brand:hover {
+    color: var(--dd-color-action-hover);
+  }
+
+  .site-header__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--dd-space-xs) var(--dd-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header__link {
+    display: inline-block;
+    padding: var(--dd-space-xs) var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    text-decoration: none;
+    border-radius: var(--dd-radius-sm);
+  }
+
+  .site-header__link:hover {
+    color: var(--dd-color-action-hover);
+  }
+
+  .site-header__link[aria-current="page"] {
+    color: var(--dd-color-action);
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+</style>

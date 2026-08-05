@@ -1,0 +1,129 @@
+---
+// Global footer: approved public contacts from the single site-data source
+// (src/data/site.js) plus locale-published section links from the canonical
+// site tree. VK opens in a new tab with an accessible hint. Semantic HTML
+// only: no JS, no Motion.
+import siteTree from "../../data/site-tree.js";
+import { site } from "../../data/site.js";
+
+const { locale } = Astro.props;
+
+const sectionItems = siteTree
+  .filter(
+    (node) =>
+      node.status !== "utility" &&
+      node.localeStatus?.[locale] === "published" &&
+      node.paths?.[locale],
+  )
+  .sort((a, b) => a.order - b.order)
+  .map((node) => ({ title: node.title, href: node.paths[locale] }));
+
+const year = new Date().getFullYear();
+
+const copy = {
+  ru: {
+    contacts: "Контакты",
+    sections: "Разделы",
+    vkNewTab: "VK (откроется в новой вкладке)",
+    rights: "Все права защищены.",
+  },
+  en: {
+    contacts: "Contacts",
+    sections: "Sections",
+    vkNewTab: "VK (opens in a new tab)",
+    rights: "All rights reserved.",
+  },
+}[locale] ?? {
+  contacts: "Контакты",
+  sections: "Разделы",
+  vkNewTab: "VK (откроется в новой вкладке)",
+  rights: "Все права защищены.",
+};
+---
+
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <div class="site-footer__contacts">
+      <h2 class="site-footer__heading">{copy.contacts}</h2>
+      <ul class="site-footer__list">
+        <li>
+          <a class="site-footer__link" href={site.emailHref}>{site.email}</a>
+        </li>
+        <li>
+          <a class="site-footer__link" href={site.phoneHref}
+            >{site.phoneDisplay}</a
+          >
+        </li>
+        <li>
+          <a
+            class="site-footer__link"
+            href={site.vk}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={copy.vkNewTab}>VK</a
+          >
+        </li>
+      </ul>
+    </div>
+    {
+      sectionItems.length > 0 && (
+        <nav class="site-footer__nav" aria-label={copy.sections}>
+          <h2 class="site-footer__heading">{copy.sections}</h2>
+          <ul class="site-footer__list">
+            {sectionItems.map((item) => (
+              <li>
+                <a class="site-footer__link" href={item.href}>
+                  {item.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )
+    }
+    <p class="site-footer__note">
+      © {year} {site.name}. {copy.rights}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--dd-space-xl);
+    border-top: 1px solid var(--dd-color-border);
+    background-color: var(--dd-color-surface);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--dd-space-md) var(--dd-space-xl);
+    width: 100%;
+    padding: var(--dd-space-lg) var(--dd-space-md) var(--dd-space-md);
+  }
+
+  .site-footer__heading {
+    margin: 0 0 var(--dd-space-xs);
+    font-size: 1rem;
+  }
+
+  .site-footer__list {
+    display: grid;
+    gap: var(--dd-space-xs);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__link {
+    display: inline-block;
+    padding: var(--dd-space-xs) 0;
+  }
+
+  .site-footer__note {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-size: 0.875rem;
+  }
+</style>

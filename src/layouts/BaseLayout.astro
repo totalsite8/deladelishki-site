@@ -1,8 +1,11 @@
 ---
-// Base HTML shell: metadata, canonical, hreflang, OG/Twitter, JSON-LD.
-// No Header/Footer and no client-side JS — those land in dedicated
-// components on later phases.
+// Base HTML shell: metadata, canonical, hreflang, OG/Twitter, JSON-LD plus
+// the global shell (SkipLink, Header, Footer). PreviewBanner renders only
+// for PUBLIC_SITE_ENV=preview builds. No client-side JS.
 import "../styles/global.css";
+import SkipLink from "../components/global/SkipLink.astro";
+import Header from "../components/global/Header.astro";
+import Footer from "../components/global/Footer.astro";
 import PreviewBanner from "../components/global/PreviewBanner.astro";
 import { site } from "../data/site.js";
 import { defaultLocale, getLocaleMeta } from "../data/locales.js";
@@ -133,7 +136,12 @@ const jsonLdItems = (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).filter(Boolean);
     }
   </head>
   <body>
+    <SkipLink locale={locale} />
     {isPreview && <PreviewBanner locale={locale} />}
-    <slot />
+    <Header locale={locale} />
+    <div id="main-content" tabindex="-1">
+      <slot />
+    </div>
+    <Footer locale={locale} />
   </body>
 </html>
