@@ -1,0 +1,220 @@
+name: Deploy Preview
+
+on:
+  push:
+    branches:
+      - "page/**"
+      - "feat/**"
+      - "fix/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Preview action (deploy or cleanup)"
+        required: true
+        default: "deploy"
+        type: choice
+        options:
+          - deploy
+          - cleanup
+      confirm_cleanup:
+        description: "Type DELETE PREVIEW to confirm cleanup"
+        required: false
+        default: ""
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-preview
+  cancel-in-progress: true
+
+env:
+  PREVIEW_URL: https://preview.deladelishki.ru
+
+jobs:
+  deploy:
+    name: Build and deploy preview
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site (preview)
+        run: npm run build
+        env:
+          PUBLIC_SITE_ENV: preview
+
+      - name: Prepare preview output
+        run: node scripts/prepare-preview.mjs
+
+      - name: Preflight guard — preview target path
+        env:
+          PREVIEW_DEPLOY_PATH: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+        run: |
+          if [ -z "$PREVIEW_DEPLOY_PATH" ]; then
+            echo "PREVIEW_DEPLOY_PATH secret is missing or empty — refusing to rsync."
+            exit 1
+          fi
+          normalized="${PREVIEW_DEPLOY_PATH%/}"
+          case "$normalized" in
+            */preview.dela/public_html)
+              echo "Preflight OK: preview target suffix verified."
+              ;;
+            *)
+              echo "Preview target validation failed — refusing to rsync."
+              exit 1
+              ;;
+          esac
+
+      - name: Deploy via SSH (attempt 1)
+        id: deploy_attempt_1
+        continue-on-error: true
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: dist/
+          remote_path: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Wait before deploy retry
+        if: steps.deploy_attempt_1.outcome == 'failure'
+        run: sleep 30
+
+      - name: Retry Deploy via SSH (attempt 2)
+        if: steps.deploy_attempt_1.outcome == 'failure'
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: dist/
+          remote_path: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Smoke-check preview content
+        run: |
+          home_file=$(mktemp)
+          robots_file=$(mktemp)
+          trap 'rm -f "$home_file" "$robots_file"' EXIT
+
+          for i in 1 2 3 4 5; do
+            echo "smoke attempt $i"
+
+            home_code=$(curl -s -o "$home_file" -w "%{http_code}" --max-time 20 "$PREVIEW_URL/" || true)
+            robots_code=$(curl -s -o "$robots_file" -w "%{http_code}" --max-time 20 "$PREVIEW_URL/robots.txt" || true)
+            sitemap_code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$PREVIEW_URL/sitemap-index.xml" || true)
+
+            ok=1
+
+            if [ "$home_code" != "200" ]; then
+              echo "home: HTTP $home_code (want 200)"
+              ok=0
+            else
+              grep -qF 'data-site-env="preview"' "$home_file" || { echo "home: missing data-site-env=preview marker"; ok=0; }
+              grep -qF 'data-preview-banner' "$home_file" || { echo "home: missing preview banner marker"; ok=0; }
+              grep -qF 'noindex, nofollow' "$home_file" || { echo "home: missing noindex, nofollow robots meta"; ok=0; }
+            fi
+
+            if [ "$robots_code" != "200" ]; then
+              echo "robots.txt: HTTP $robots_code (want 200)"
+              ok=0
+            else
+              grep -qF 'User-agent: *' "$robots_file" || { echo "robots.txt: missing 'User-agent: *'"; ok=0; }
+              grep -qF 'Disallow: /' "$robots_file" || { echo "robots.txt: missing 'Disallow: /'"; ok=0; }
+            fi
+
+            case "$sitemap_code" in
+              404|410) : ;;
+              *) echo "sitemap-index.xml: HTTP $sitemap_code (want 404 or 410)"; ok=0 ;;
+            esac
+
+            if [ "$ok" = "1" ]; then
+              echo "Preview smoke-check passed: $PREVIEW_URL/"
+              exit 0
+            fi
+
+            sleep 20
+          done
+
+          echo "Preview smoke-check failed after 5 attempts"
+          exit 1
+
+  cleanup:
+    name: Cleanup preview
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'cleanup'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Confirm cleanup phrase
+        env:
+          CLEANUP_CONFIRM: ${{ github.event.inputs.confirm_cleanup }}
+        run: |
+          if [ "$CLEANUP_CONFIRM" != "DELETE PREVIEW" ]; then
+            echo "Cleanup refused: type DELETE PREVIEW in confirm_cleanup to proceed."
+            exit 1
+          fi
+          echo "Cleanup confirmed."
+
+      - name: Preflight guard — preview target path
+        env:
+          PREVIEW_DEPLOY_PATH: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+        run: |
+          if [ -z "$PREVIEW_DEPLOY_PATH" ]; then
+            echo "PREVIEW_DEPLOY_PATH secret is missing or empty — refusing to rsync."
+            exit 1
+          fi
+          normalized="${PREVIEW_DEPLOY_PATH%/}"
+          case "$normalized" in
+            */preview.dela/public_html)
+              echo "Preflight OK: preview target suffix verified."
+              ;;
+            *)
+              echo "Preview target validation failed — refusing to rsync."
+              exit 1
+              ;;
+          esac
+
+      - name: Create empty directory
+        run: mkdir -p empty-preview
+
+      - name: Empty preview via rsync --delete (attempt 1)
+        id: cleanup_attempt_1
+        continue-on-error: true
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: empty-preview/
+          remote_path: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Wait before cleanup retry
+        if: steps.cleanup_attempt_1.outcome == 'failure'
+        run: sleep 30
+
+      - name: Retry empty preview via rsync --delete (attempt 2)
+        if: steps.cleanup_attempt_1.outcome == 'failure'
+        uses: burnett01/rsync-deployments@7.0.1
+        with:
+          switches: -avzr --delete
+          path: empty-preview/
+          remote_path: ${{ secrets.PREVIEW_DEPLOY_PATH }}
+          remote_host: ${{ secrets.SSH_HOST }}
+          remote_user: ${{ secrets.SSH_USER }}
+          remote_key: ${{ secrets.SSH_PRIVATE_KEY }}
