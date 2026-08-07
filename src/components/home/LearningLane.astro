@@ -1,0 +1,83 @@
+---
+// Section 03 — learning lane: courses, blog and the prompt base as hairline
+// rows (type / title / summary / status), echoing the same engineering
+// annotation language as the hero field.
+import { learningItems } from "../../data/home.js";
+import SectionHeading from "./SectionHeading.astro";
+import StatusBadge from "./StatusBadge.astro";
+---
+
+<section class="home-section" id="dlya-obucheniya" data-parallax aria-labelledby="learning-title">
+  <div class="home-section__inner">
+    <SectionHeading
+      eyebrow="03 / Для обучения"
+      title="Знания, которые можно забрать"
+      lead="Курсы, статьи и промпты появляются по мере подготовки. Статусы под каждой строкой — честные."
+      accent="learning"
+    />
+    <ul class="lane-rows">
+      {
+        learningItems.map((item) => (
+          <li class="lane-row">
+            <span class="lane-row__type">{item.type}</span>
+            <span class="lane-row__main">
+              <span class="lane-row__title">{item.title}</span>
+              <span class="lane-row__summary">{item.summary}</span>
+            </span>
+            <StatusBadge status={item.status} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .lane-rows {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--dd-hairline);
+  }
+
+  .lane-row {
+    display: grid;
+    grid-template-columns: 7rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--dd-space-xs) var(--dd-space-md);
+    padding: var(--dd-space-sm) 0;
+    border-top: 1px solid var(--dd-hairline);
+  }
+
+  .lane-row__type {
+    color: var(--dd-lane-learning);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .lane-row__main {
+    display: grid;
+    gap: 0.15em;
+  }
+
+  .lane-row__title {
+    font-family: var(--dd-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .lane-row__summary {
+    max-width: var(--dd-measure);
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (max-width: 40rem) {
+    .lane-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

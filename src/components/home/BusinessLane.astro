@@ -1,0 +1,157 @@
+---
+// Section 02 — business lane: six service directions in an open hairline
+// grid (no card boxes), each with its domain channel; child explorers stay
+// native <details>. The cases block is an honest status note, not a case.
+import { serviceDirections, casesStatus } from "../../data/home.js";
+import SectionHeading from "./SectionHeading.astro";
+import StatusBadge from "./StatusBadge.astro";
+---
+
+<section class="home-section" id="dlya-biznesa" data-parallax aria-labelledby="business-title">
+  <div class="home-section__inner">
+    <SectionHeading
+      eyebrow="02 / Для бизнеса"
+      title="Шесть направлений услуг"
+      lead="Каждое направление — часть одной системы: от исследования и стратегии до сайта, рекламы и автоматизации. Страницы направлений откроются по мере публикации."
+      accent="business"
+    />
+    <ul class="direction-grid">
+      {
+        serviceDirections.map((direction, index) => (
+          <li class:list={["direction-cell", { "direction-cell--wide": index === 0 }]}>
+            <article style={`--domain-accent: var(--dd-domain-${direction.domain})`}>
+              <div class="direction-cell__head">
+                <h3 class="direction-cell__title">{direction.title}</h3>
+                <StatusBadge status={direction.status} />
+              </div>
+              <p class="direction-cell__summary">{direction.summary}</p>
+              <details class="direction-cell__explorer">
+                <summary>
+                  Состав направления ({direction.children.length})
+                </summary>
+                <ul class="direction-cell__children">
+                  {direction.children.map((child) => (
+                    <li>{child.label}</li>
+                  ))}
+                </ul>
+              </details>
+            </article>
+          </li>
+        ))
+      }
+    </ul>
+    <aside class="cases-status" aria-labelledby="cases-status-title">
+      <p class="cases-status__eyebrow">{casesStatus.eyebrow}</p>
+      <h3 class="cases-status__title" id="cases-status-title">
+        {casesStatus.title}
+      </h3>
+      <p class="cases-status__text">{casesStatus.text}</p>
+      <StatusBadge status={casesStatus.status} />
+    </aside>
+  </div>
+</section>
+
+<style>
+  .direction-grid {
+    display: grid;
+    gap: var(--dd-space-md) var(--dd-space-lg);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .direction-cell {
+    border-top: 1px solid var(--dd-hairline);
+  }
+
+  .direction-cell article {
+    display: grid;
+    gap: var(--dd-space-xs);
+    align-content: start;
+    height: 100%;
+    padding-top: var(--dd-space-sm);
+    border-top: 2px solid var(--domain-accent, var(--dd-color-action));
+  }
+
+  .direction-cell__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--dd-space-xs) var(--dd-space-sm);
+  }
+
+  .direction-cell__title {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+
+  .direction-cell__summary {
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .direction-cell__explorer summary {
+    min-height: var(--dd-node-size-min);
+    padding: 0.4em 0;
+    color: var(--dd-color-action);
+    font-family: var(--dd-font-mono);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
+  .direction-cell__children {
+    display: grid;
+    gap: 0.3em;
+    margin: 0;
+    padding: 0 0 0 var(--dd-space-sm);
+    color: var(--dd-color-muted);
+    font-size: 0.875rem;
+  }
+
+  .cases-status {
+    max-width: var(--dd-measure-wide);
+    margin-top: var(--dd-space-lg);
+    padding-top: var(--dd-space-md);
+    border-top: 1px solid var(--dd-hairline);
+  }
+
+  .cases-status__eyebrow {
+    margin: 0 0 var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .cases-status__title {
+    margin: 0 0 var(--dd-space-xs);
+    font-size: 1.125rem;
+  }
+
+  .cases-status__text {
+    max-width: var(--dd-measure);
+    margin: 0 0 var(--dd-space-sm);
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (min-width: 48rem) {
+    .direction-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .direction-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    /* asymmetry: the first direction gets a double cell */
+    .direction-cell--wide {
+      grid-column: span 2;
+    }
+  }
+</style>

@@ -1,0 +1,395 @@
+---
+// Shared template for the six service-direction pages. Full marketing
+// content comes from src/data/services.js; structure follows the service
+// detail order (situations -> includes -> process -> boundaries -> FAQ ->
+// CTA -> related). Draft state: noindex until the tree publishes them.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import StatusBadge from "../home/StatusBadge.astro";
+import { servicePages } from "../../data/services.js";
+import { site } from "../../data/site.js";
+
+const { service } = Astro.props;
+const related = servicePages.filter((item) => item.slug !== service.slug);
+---
+
+<BaseLayout
+  title={service.seo.title}
+  description={service.seo.description}
+  locale="ru"
+  routeId={service.routeId}
+  noindex
+  theme="portal"
+>
+  <main class="service">
+    <nav class="service__crumbs" aria-label="Хлебные крошки">
+      <a href="/">Главная</a>
+      <span aria-hidden="true"> / </span>
+      <a href="/uslugi/">Услуги</a>
+      <span aria-hidden="true"> / </span>
+      <span aria-current="page">{service.navTitle}</span>
+    </nav>
+
+    <header class="service__hero">
+      <p
+        class="service__eyebrow"
+        style={`color: var(--dd-domain-${service.domain})`}
+      >
+        Направление / {service.navTitle}
+      </p>
+      <h1 class="service__title">{service.h1}</h1>
+      <p class="service__offer">{service.offer}</p>
+      <div class="service__actions">
+        <a class="service__cta" href="/kontakty/">Обсудить проект</a>
+        <StatusBadge status={service.status} />
+      </div>
+    </header>
+
+    <section class="service__section" aria-labelledby="svc-situations">
+      <h2 class="service__h2" id="svc-situations">Когда это нужно</h2>
+      <ul class="service__grid">
+        {service.situations.map((item) => <li class="service__cell">{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="service__section" aria-labelledby="svc-includes">
+      <h2 class="service__h2" id="svc-includes">Что входит</h2>
+      <ul class="service__includes">
+        {
+          service.includes.map((item) => (
+            <li class="service__include">
+              <h3 class="service__include-title">{item.label}</h3>
+              <p class="service__include-text">{item.text}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="service__section" aria-labelledby="svc-process">
+      <h2 class="service__h2" id="svc-process">Как я работаю</h2>
+      <ol class="service__steps">
+        {
+          service.process.map((step, index) => (
+            <li class="service__step">
+              <span class="service__step-number" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div>
+                <h3 class="service__step-title">{step.title}</h3>
+                <p class="service__step-text">{step.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="service__section" aria-labelledby="svc-boundaries">
+      <h2 class="service__h2" id="svc-boundaries">Чего я не обещаю</h2>
+      <ul class="service__boundaries">
+        {service.boundaries.map((item) => <li>{item}</li>)}
+      </ul>
+    </section>
+
+    <section class="service__section" aria-labelledby="svc-faq">
+      <h2 class="service__h2" id="svc-faq">Частые вопросы</h2>
+      <div class="service__faq">
+        {
+          service.faq.map((item) => (
+            <details class="service__faq-item">
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="service__cta-block" aria-labelledby="svc-cta">
+      <h2 class="service__cta-title" id="svc-cta">{service.cta}</h2>
+      <ul class="service__contacts">
+        <li><a href={site.emailHref}>{site.email}</a></li>
+        <li><a href={site.phoneHref}>{site.phoneDisplay}</a></li>
+        <li>
+          <a href={site.vk} target="_blank" rel="noopener noreferrer">VK</a>
+        </li>
+      </ul>
+    </section>
+
+    <nav class="service__related" aria-label="Другие направления">
+      <p class="service__related-label">Другие направления услуг</p>
+      <ul>
+        {
+          related.map((item) => (
+            <li>
+              <a href={`/uslugi/${item.slug}/`}>{item.navTitle}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </main>
+</BaseLayout>
+
+<style>
+  .service {
+    width: 100%;
+    max-width: var(--dd-container-max);
+    margin: 0 auto;
+    padding: var(--dd-space-xl) var(--dd-container-gutter);
+  }
+
+  .service__crumbs {
+    margin-bottom: var(--dd-space-lg);
+    color: var(--dd-color-muted);
+    font-size: 0.8125rem;
+  }
+
+  .service__eyebrow {
+    margin: 0 0 var(--dd-space-xs);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .service__title {
+    margin: 0;
+    max-width: 18ch;
+    font-size: clamp(1.9rem, 1.4rem + 2.5vw, 3.25rem);
+    line-height: 1.08;
+  }
+
+  .service__offer {
+    max-width: var(--dd-measure);
+    margin: var(--dd-space-md) 0 0;
+    color: var(--dd-color-muted);
+    font-size: 1.0625rem;
+  }
+
+  .service__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dd-space-md);
+    margin-top: var(--dd-space-md);
+  }
+
+  .service__cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--dd-node-size-min);
+    padding: 0.6em 1.4em;
+    border: 1px solid var(--dd-color-action);
+    border-radius: var(--dd-radius-full);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .service__cta:hover {
+    border-color: var(--dd-color-action-hover);
+    background-color: var(--dd-color-action-hover);
+    color: var(--dd-color-canvas);
+  }
+
+  .service__section {
+    margin-top: var(--dd-space-2xl);
+  }
+
+  .service__h2 {
+    margin: 0 0 var(--dd-space-md);
+    padding-bottom: var(--dd-space-xs);
+    border-bottom: 1px solid var(--dd-hairline);
+  }
+
+  .service__grid {
+    display: grid;
+    gap: var(--dd-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service__cell {
+    padding: var(--dd-space-sm) 0 0;
+    border-top: 1px solid var(--dd-hairline);
+    color: var(--dd-color-muted);
+  }
+
+  .service__includes {
+    display: grid;
+    gap: var(--dd-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service__include-title {
+    margin: 0 0 0.2em;
+    font-size: 1.125rem;
+  }
+
+  .service__include-text {
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .service__steps {
+    display: grid;
+    gap: var(--dd-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service__step {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: var(--dd-space-md);
+    align-items: start;
+  }
+
+  .service__step-number {
+    color: var(--dd-color-action);
+    font-family: var(--dd-font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: var(--dd-eyebrow-tracking);
+    padding-top: 0.3em;
+  }
+
+  .service__step-title {
+    margin: 0 0 0.2em;
+    font-size: 1.125rem;
+  }
+
+  .service__step-text {
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .service__boundaries {
+    display: grid;
+    gap: var(--dd-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--dd-color-muted);
+  }
+
+  .service__boundaries li {
+    padding-left: var(--dd-space-sm);
+    border-left: 2px solid var(--dd-color-border);
+  }
+
+  .service__faq {
+    display: grid;
+    gap: var(--dd-space-xs);
+    max-width: var(--dd-measure-wide);
+  }
+
+  .service__faq-item {
+    border: 1px solid var(--dd-color-border);
+    border-left: 2px solid var(--dd-color-action);
+    background-color: var(--dd-color-surface-raised);
+  }
+
+  .service__faq-item summary {
+    min-height: var(--dd-node-size-min);
+    padding: 0.6em var(--dd-space-sm);
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .service__faq-item p {
+    margin: 0;
+    padding: 0 var(--dd-space-sm) var(--dd-space-sm);
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .service__cta-block {
+    margin-top: var(--dd-space-2xl);
+    padding-top: var(--dd-space-lg);
+    border-top: 1px solid var(--dd-hairline);
+    background-image: radial-gradient(
+      ellipse 55% 90% at 20% 100%,
+      rgb(59 7 100 / 0.35),
+      transparent 70%
+    );
+  }
+
+  .service__cta-title {
+    max-width: var(--dd-measure);
+    margin: 0;
+    font-size: clamp(1.3rem, 1.1rem + 1vw, 1.8rem);
+  }
+
+  .service__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--dd-space-sm) var(--dd-space-lg);
+    margin: var(--dd-space-md) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 1.125rem;
+    font-weight: 700;
+  }
+
+  .service__contacts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--dd-node-size-min);
+    text-decoration: none;
+  }
+
+  .service__related {
+    margin-top: var(--dd-space-2xl);
+    padding-top: var(--dd-space-md);
+    border-top: 1px solid var(--dd-hairline);
+  }
+
+  .service__related-label {
+    margin: 0 0 var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .service__related ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--dd-space-xs) var(--dd-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .service__related a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--dd-node-size-min);
+  }
+
+  @media (min-width: 48rem) {
+    .service__grid,
+    .service__includes {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .service__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .service__includes {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

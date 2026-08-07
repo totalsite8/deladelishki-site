@@ -1,0 +1,23 @@
+---
+import SimpleHub from "../components/hub/SimpleHub.astro";
+import { site } from "../data/site.js";
+---
+
+<SimpleHub
+  title="Контакты — Данила Подшивалов | Dela Delishki"
+  description="Связаться с Данилой Подшиваловой: email totalsite@yandex.ru, телефон +7 903 727-51-31, VK. Обсудим ваш проект."
+  routeId="kontakty"
+  eyebrow="Раздел / Контакты"
+  h1="Обсудим ваш проект"
+  lead="Расскажите о задаче в письме, по телефону или в VK — разберёмся, чем я могу быть полезен. Форма появится позже, когда будет готов надёжный backend."
+>
+  <ul class="hub-contacts">
+    <li><a href={site.emailHref}>{site.email}</a></li>
+    <li><a href={site.phoneHref}>{site.phoneDisplay}</a></li>
+    <li>
+      <a href={site.vk} target="_blank" rel="noopener noreferrer" aria-label="VK (откроется в новой вкладке)">
+        VK
+      </a>
+    </li>
+  </ul>
+</SimpleHub>

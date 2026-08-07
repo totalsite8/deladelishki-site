@@ -1,0 +1,199 @@
+---
+// Section 06 — about Danila: first-person positioning, the four approved
+// public facts, the owner-supplied photo and the skill system as clickable
+// panels with a magnetic hover (af-style, recreated in DOM). Skills contain
+// approved competencies only — no metrics, no case content.
+import { Image } from "astro:assets";
+import { about, skills } from "../../data/home.js";
+import SectionHeading from "./SectionHeading.astro";
+import afPhoto from "./af.png";
+---
+
+<section class="home-section" id="o-danile" data-parallax aria-labelledby="about-title">
+  <div class="home-section__inner">
+    <SectionHeading eyebrow="06 / О Даниле" title={about.title} accent="business" />
+    <div class="about">
+      <figure class="about__figure">
+        <Image
+          src={afPhoto}
+          alt={about.photo.alt}
+          widths={[420, 640, 960]}
+          sizes="(min-width: 64rem) 34rem, 100vw"
+          class="about__photo"
+          loading="lazy"
+        />
+        <figcaption class="about__caption">{about.photo.caption}</figcaption>
+      </figure>
+      <div class="about__body">
+        <p class="about__lead">{about.lead}</p>
+        <ul class="about__skills">
+          {
+            skills.map((skill) => (
+              <li>
+                <details class="skill">
+                  <summary class="skill__summary" data-magnetic>
+                    <span class="skill__dot" aria-hidden="true" />
+                    {skill.label}
+                  </summary>
+                  <ul class="skill__items">
+                    {skill.items.map((item) => (
+                      <li>{item}</li>
+                    ))}
+                  </ul>
+                </details>
+              </li>
+            ))
+          }
+        </ul>
+        <ul class="about__facts">
+          {about.facts.map((fact) => <li class="about__fact">{fact}</li>)}
+        </ul>
+        <p class="about__note">{about.note}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Magnetic hover for skill summaries: tiny vanilla enhancement (not a
+  // React island). Transform-only, pointer:fine and full motion only.
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  const fullMotion = !window.matchMedia("(prefers-reduced-motion: reduce)")
+    .matches;
+  if (finePointer && fullMotion) {
+    document.querySelectorAll("[data-magnetic]").forEach((element) => {
+      element.addEventListener("mousemove", (event) => {
+        const rect = element.getBoundingClientRect();
+        const dx = (event.clientX - rect.left) / rect.width - 0.5;
+        const dy = (event.clientY - rect.top) / rect.height - 0.5;
+        element.style.transform = `translate(${(dx * 8).toFixed(1)}px, ${(dy * 5).toFixed(1)}px)`;
+      });
+      element.addEventListener("mouseleave", () => {
+        element.style.transform = "";
+      });
+    });
+  }
+</script>
+
+<style>
+  .about {
+    display: grid;
+    gap: var(--dd-space-lg);
+  }
+
+  .about__figure {
+    margin: 0;
+    border-top: 1px solid var(--dd-hairline);
+    padding-top: var(--dd-space-sm);
+  }
+
+  .about__photo {
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--dd-color-border);
+  }
+
+  .about__caption {
+    margin-top: var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .about__lead {
+    max-width: var(--dd-measure);
+    margin: 0 0 var(--dd-space-md);
+    font-size: 1.125rem;
+    line-height: 1.5;
+  }
+
+  .about__skills {
+    display: grid;
+    gap: var(--dd-space-xs);
+    margin: 0 0 var(--dd-space-md);
+    padding: 0;
+    list-style: none;
+  }
+
+  .skill {
+    border: 1px solid var(--dd-color-border);
+    border-left: 2px solid var(--dd-lane-business);
+    background-color: var(--dd-color-surface-raised);
+  }
+
+  .skill__summary {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    min-height: var(--dd-node-size-min);
+    padding: 0.55em var(--dd-space-sm);
+    font-weight: 700;
+    cursor: pointer;
+    list-style: none;
+    transition: transform var(--dd-duration-fast) var(--dd-ease-out);
+    will-change: transform;
+  }
+
+  .skill__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .skill__dot {
+    width: var(--dd-status-dot-size);
+    height: var(--dd-status-dot-size);
+    border-radius: var(--dd-radius-full);
+    background-color: var(--dd-lane-business);
+    flex-shrink: 0;
+  }
+
+  .skill[open] {
+    border-color: var(--dd-lane-business);
+  }
+
+  .skill__items {
+    display: grid;
+    gap: 0.3em;
+    margin: 0;
+    padding: 0 var(--dd-space-sm) var(--dd-space-sm) calc(var(--dd-space-sm) + 1.1em);
+    color: var(--dd-color-muted);
+    font-size: 0.875rem;
+    list-style: none;
+  }
+
+  .about__facts {
+    display: grid;
+    gap: var(--dd-space-sm);
+    margin: 0;
+    padding: var(--dd-space-sm) 0 0;
+    border-top: 1px solid var(--dd-hairline);
+    list-style: none;
+  }
+
+  .about__fact {
+    padding-left: var(--dd-space-sm);
+    border-left: 2px solid var(--dd-lane-business);
+    color: var(--dd-color-muted);
+  }
+
+  .about__note {
+    margin: var(--dd-space-md) 0 0;
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: 0.8125rem;
+  }
+
+  @media (min-width: 64rem) {
+    .about {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .about__skills {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

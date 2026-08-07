@@ -1,0 +1,92 @@
+---
+// Section 07 — final CTA + direct contacts (#kontakty). Email, phone and VK
+// from the single site-data source; no form until the backend gate is done.
+// The deep brand glow makes this block the visual "signature" of the page.
+import { contacts } from "../../data/home.js";
+import { site } from "../../data/site.js";
+---
+
+<section class="home-contacts" id="kontakty" aria-labelledby="contacts-title">
+  <div class="home-section__inner">
+    <p class="home-contacts__eyebrow">{contacts.eyebrow}</p>
+    <h2 class="home-contacts__title" id="contacts-title">{contacts.title}</h2>
+    <p class="home-contacts__text">{contacts.text}</p>
+    <ul class="home-contacts__list">
+      <li>
+        <a class="home-contacts__link" href={site.emailHref}>{site.email}</a>
+      </li>
+      <li>
+        <a class="home-contacts__link" href={site.phoneHref}>
+          {site.phoneDisplay}
+        </a>
+      </li>
+      <li>
+        <a
+          class="home-contacts__link"
+          href={site.vk}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={contacts.vkLabel}
+        >
+          VK
+        </a>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .home-contacts {
+    padding: var(--dd-space-2xl) var(--dd-container-gutter);
+    background-image: radial-gradient(
+      ellipse 60% 70% at 50% 100%,
+      rgb(59 7 100 / 0.5),
+      transparent 70%
+    );
+    scroll-margin-top: 5rem;
+  }
+
+  .home-contacts__eyebrow {
+    margin: 0 0 var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .home-contacts__title {
+    margin: 0;
+    font-size: clamp(1.75rem, 1.25rem + 2.5vw, 3rem);
+  }
+
+  .home-contacts__text {
+    max-width: var(--dd-measure);
+    margin: var(--dd-space-md) 0 0;
+    color: var(--dd-color-muted);
+  }
+
+  .home-contacts__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--dd-space-sm) var(--dd-space-lg);
+    margin: var(--dd-space-lg) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .home-contacts__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--dd-node-size-min);
+    font-family: var(--dd-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .home-contacts__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 0.15em;
+  }
+</style>

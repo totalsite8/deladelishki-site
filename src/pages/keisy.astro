@@ -1,0 +1,19 @@
+---
+import SimpleHub from "../components/hub/SimpleHub.astro";
+import { casesStatus } from "../data/home.js";
+---
+
+<SimpleHub
+  title="Кейсы — готовятся к публикации | Dela Delishki"
+  description="Кейсы Данилы Подшивалова появятся после проверки цифр, периодов и разрешений. До публикации — без метрик, логотипов и названий."
+  routeId="keisy"
+  eyebrow="Раздел / Кейсы"
+  h1="Кейсы"
+  lead={casesStatus.text}
+  status="progress"
+>
+  <p class="hub-note">
+    Четыре проекта находятся на этапе проверки фактов. Сначала подтверждение
+    — потом публикация. Пока честный статус вместо красивых цифр.
+  </p>
+</SimpleHub>

@@ -1,0 +1,21 @@
+---
+import SimpleHub from "../components/hub/SimpleHub.astro";
+import { about } from "../data/home.js";
+---
+
+<SimpleHub
+  title="О нас — Данила Подшивалов | Dela Delishki"
+  description="Dela Delishki — личный digital-портал Данилы Подшивалова: 18+ лет в digital, руководитель-практик. Услуги, знания и инструменты."
+  routeId="o-nas"
+  eyebrow="Раздел / О нас"
+  h1="Dela Delishki — портал одного оператора"
+  lead={about.lead}
+  status="progress"
+>
+  <ul class="hub-grid">
+    {about.facts.map((fact) => <li class="hub-cell"><p>{fact}</p></li>)}
+  </ul>
+  <p class="hub-note">
+    {about.note} Пока — <a href="/#o-danile">блок о Даниле на главной</a>.
+  </p>
+</SimpleHub>

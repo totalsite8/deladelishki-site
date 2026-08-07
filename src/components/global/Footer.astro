@@ -26,18 +26,21 @@ const copy = {
     sections: "Разделы",
     vkNewTab: "VK (откроется в новой вкладке)",
     rights: "Все права защищены.",
+    status: "Статус портала: релиз 1.0 — главная опубликована, разделы в разработке",
   },
   en: {
     contacts: "Contacts",
     sections: "Sections",
     vkNewTab: "VK (opens in a new tab)",
     rights: "All rights reserved.",
+    status: "Portal status: release 1.0 — home published, sections in progress",
   },
 }[locale] ?? {
   contacts: "Контакты",
   sections: "Разделы",
   vkNewTab: "VK (откроется в новой вкладке)",
   rights: "Все права защищены.",
+  status: "Статус портала: релиз 1.0 — главная опубликована, разделы в разработке",
 };
 ---
 
@@ -81,6 +84,7 @@ const copy = {
         </nav>
       )
     }
+    <p class="site-footer__status">{copy.status}</p>
     <p class="site-footer__note">
       © {year} {site.name}. {copy.rights}
     </p>
@@ -118,6 +122,16 @@ const copy = {
   .site-footer__link {
     display: inline-block;
     padding: var(--dd-space-xs) 0;
+  }
+
+  .site-footer__status {
+    flex-basis: 100%;
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
   }
 
   .site-footer__note {

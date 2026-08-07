@@ -1,0 +1,43 @@
+---
+// Shared section header for the home page: mono eyebrow ("01 / ШЛЮЗЫ"),
+// one H2 and an optional lead paragraph. The eyebrow is the "voice of the
+// system"; the H2 is the "voice of the person". Optional lane accent colors
+// the eyebrow so a section visibly belongs to its lane in the hero field.
+const { eyebrow, title, lead, accent } = Astro.props;
+---
+
+<header class="section-heading">
+  <p
+    class="section-heading__eyebrow"
+    style={accent ? `color: var(--dd-lane-${accent})` : undefined}
+  >
+    {eyebrow}
+  </p>
+  <h2 class="section-heading__title">{title}</h2>
+  {lead && <p class="section-heading__lead">{lead}</p>}
+</header>
+
+<style>
+  .section-heading {
+    max-width: var(--dd-measure);
+    margin-bottom: var(--dd-space-lg);
+  }
+
+  .section-heading__eyebrow {
+    margin: 0 0 var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .section-heading__title {
+    margin: 0;
+  }
+
+  .section-heading__lead {
+    margin: var(--dd-space-sm) 0 0;
+    color: var(--dd-color-muted);
+  }
+</style>

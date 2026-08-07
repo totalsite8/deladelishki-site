@@ -1,0 +1,30 @@
+---
+import SimpleHub from "../components/hub/SimpleHub.astro";
+import { serviceDirections } from "../data/home.js";
+---
+
+<SimpleHub
+  title="Услуги — разработка, дизайн, маркетинг, AI, фотосъёмка, обучение | Dela Delishki"
+  description="Шесть направлений услуг Данилы Подшивалова: разработка, дизайн, маркетинг, AI, фотосъёмка и обучение — как одна система под ключ или по частям."
+  routeId="uslugi"
+  eyebrow="Раздел / Услуги"
+  h1="Услуги"
+  lead="Шесть направлений одной системы: от исследования и стратегии до сайта, рекламы и автоматизации. Под ключ или по частям. Детальные страницы направлений откроются по мере публикации."
+  status="progress"
+>
+  <ul class="hub-grid">
+    {
+      serviceDirections.map((direction) => (
+        <li class="hub-cell">
+          <h2>
+            <a href={direction.href}>{direction.title}</a>
+          </h2>
+          <p>{direction.summary}</p>
+        </li>
+      ))
+    }
+  </ul>
+  <p class="hub-note">
+    Обсудить задачу: <a href="/kontakty/">контакты</a>.
+  </p>
+</SimpleHub>

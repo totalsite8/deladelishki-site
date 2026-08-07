@@ -1,0 +1,137 @@
+---
+// Shared minimal hub layout for the first simple versions of section pages.
+// Sections are drafts until published in the site tree, so every hub renders
+// with noindex. Content comes from the page; no invented facts allowed.
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import StatusBadge from "../home/StatusBadge.astro";
+
+const { title, description, routeId, eyebrow, h1, lead, status } = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale="ru"
+  routeId={routeId}
+  noindex
+  theme="portal"
+>
+  <main class="hub">
+    <div class="hub__inner">
+      <p class="hub__eyebrow">{eyebrow}</p>
+      <h1 class="hub__title">{h1}</h1>
+      {lead && <p class="hub__lead">{lead}</p>}
+      {status && <StatusBadge status={status} />}
+      <div class="hub__content">
+        <slot />
+      </div>
+      <p class="hub__back">
+        <a href="/">← На главную</a>
+      </p>
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .hub {
+    padding: var(--dd-space-2xl) var(--dd-container-gutter);
+  }
+
+  .hub__inner {
+    width: 100%;
+    max-width: var(--dd-container-max);
+    margin: 0 auto;
+  }
+
+  .hub__eyebrow {
+    margin: 0 0 var(--dd-space-xs);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .hub__title {
+    margin: 0;
+    font-size: clamp(1.9rem, 1.4rem + 2.5vw, 3.25rem);
+    line-height: 1.08;
+  }
+
+  .hub__lead {
+    max-width: var(--dd-measure);
+    margin: var(--dd-space-md) 0 var(--dd-space-sm);
+    color: var(--dd-color-muted);
+    font-size: 1.0625rem;
+  }
+
+  .hub__content {
+    margin-top: var(--dd-space-lg);
+  }
+
+  .hub__back {
+    margin-top: var(--dd-space-xl);
+    font-size: 0.9375rem;
+  }
+
+  /* shared primitives for hub content */
+  .hub__content :global(.hub-grid) {
+    display: grid;
+    gap: var(--dd-space-md);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .hub__content :global(.hub-cell) {
+    padding: var(--dd-space-md) 0 0;
+    border-top: 1px solid var(--dd-hairline);
+  }
+
+  .hub__content :global(.hub-cell h2) {
+    margin: 0 0 var(--dd-space-xs);
+    font-size: 1.25rem;
+  }
+
+  .hub__content :global(.hub-cell p) {
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  .hub__content :global(.hub-note) {
+    max-width: var(--dd-measure);
+    padding-top: var(--dd-space-md);
+    border-top: 1px solid var(--dd-hairline);
+    color: var(--dd-color-muted);
+  }
+
+  .hub__content :global(.hub-contacts) {
+    display: grid;
+    gap: var(--dd-space-sm);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .hub__content :global(.hub-contacts a) {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--dd-node-size-min);
+    text-decoration: none;
+  }
+
+  @media (min-width: 48rem) {
+    .hub__content :global(.hub-grid) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 70rem) {
+    .hub__content :global(.hub-grid) {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
