@@ -1,30 +1,107 @@
 ---
-import SimpleHub from "../components/hub/SimpleHub.astro";
+// Services hub: interactive business-style entry to the six directions.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import StatusBadge from "../components/home/StatusBadge.astro";
 import { serviceDirections } from "../data/home.js";
+import "../components/hub/biz.css";
+
+const title = "Услуги — разработка, дизайн, маркетинг, AI, фотосъёмка, обучение | Dela Delishki";
+const description =
+  "Шесть направлений услуг Данилы Подшивалова: разработка, дизайн, маркетинг, AI, фотосъёмка и обучение — как одна система под ключ или по частям.";
+
+const principles = [
+  "Без лишних формальностей и брифов на 40 страниц",
+  "Не предлагаю лишнего: если задача решается проще — скажу прямо",
+  "Цифры показываю как есть, без приукрашивания",
+  "Один человек отвечает за результат, а не команда аккаунтов",
+];
 ---
 
-<SimpleHub
-  title="Услуги — разработка, дизайн, маркетинг, AI, фотосъёмка, обучение | Dela Delishki"
-  description="Шесть направлений услуг Данилы Подшивалова: разработка, дизайн, маркетинг, AI, фотосъёмка и обучение — как одна система под ключ или по частям."
+<BaseLayout
+  title={title}
+  description={description}
+  locale="ru"
   routeId="uslugi"
-  eyebrow="Раздел / Услуги"
-  h1="Услуги"
-  lead="Шесть направлений одной системы: от исследования и стратегии до сайта, рекламы и автоматизации. Под ключ или по частям. Детальные страницы направлений откроются по мере публикации."
-  status="progress"
+  noindex
+  theme="portal"
 >
-  <ul class="hub-grid">
-    {
-      serviceDirections.map((direction) => (
-        <li class="hub-cell">
-          <h2>
-            <a href={direction.href}>{direction.title}</a>
-          </h2>
-          <p>{direction.summary}</p>
+  <main>
+    <section class="biz-hero">
+      <canvas class="biz-hero__field" data-biz-field aria-hidden="true"></canvas>
+      <div class="biz-hero__inner">
+        <nav class="biz-hero__crumbs" aria-label="Хлебные крошки">
+          <a href="/">Главная</a>
+          <span aria-hidden="true"> / </span>
+          <span aria-current="page">Услуги</span>
+        </nav>
+        <p class="biz-hero__eyebrow" style="color: var(--dd-lane-business)">
+          Раздел / Услуги
+        </p>
+        <h1 class="biz-hero__title">Возьму вашу задачу на себя — целиком</h1>
+        <p class="biz-hero__offer">
+          Шесть направлений одной системы: от исследования и стратегии до
+          сайта, рекламы и автоматизации. Под ключ или по частям — с личной
+          ответственностью за результат.
+        </p>
+        <div class="biz-hero__actions">
+          <a class="biz-cta" href="/kontakty/" data-magnetic>Обсудить проект</a>
+          <StatusBadge status="progress" />
+        </div>
+        <ul class="biz-principles">
+          {principles.map((item) => <li>{item}</li>)}
+        </ul>
+      </div>
+    </section>
+
+    <div class="biz">
+      <section class="biz-section" aria-labelledby="uslugi-directions">
+        <h2 class="biz-section__h2" id="uslugi-directions">
+          <span>01</span>Направления
+        </h2>
+        <ul class="biz-cards biz-cards--three">
+          {
+            serviceDirections.map((direction) => (
+              <li class="biz-card" data-spot>
+                <h3 class="biz-card__title">
+                  <a href={direction.href}>{direction.title}</a>
+                </h3>
+                <p class="biz-card__text">{direction.summary}</p>
+              </li>
+            ))
+          }
+        </ul>
+      </section>
+    </div>
+
+    <section class="biz-final" aria-labelledby="uslugi-cta">
+      <h2 class="biz-final__title" id="uslugi-cta">
+        Не уверены, с чего начать? Расскажите о задаче — предложу вариант.
+      </h2>
+      <ul class="biz-final__contacts">
+        <li>
+          <a href="mailto:totalsite@yandex.ru" data-magnetic>
+            totalsite@yandex.ru
+          </a>
         </li>
-      ))
-    }
-  </ul>
-  <p class="hub-note">
-    Обсудить задачу: <a href="/kontakty/">контакты</a>.
-  </p>
-</SimpleHub>
+        <li>
+          <a href="tel:+79037275131" data-magnetic>+7 903 727-51-31</a>
+        </li>
+        <li>
+          <a
+            href="https://vk.com/id990254"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-magnetic
+          >
+            VK
+          </a>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    import { initBiz } from "../components/hub/biz-interactions.js";
+    initBiz();
+  </script>
+</BaseLayout>
