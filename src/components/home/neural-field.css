@@ -355,10 +355,12 @@
     background-color var(--dd-duration-fast) var(--dd-ease-out);
 }
 
-/* nodes become interactive only while their lane is active */
-.neural[data-active-lane="business"] [data-lane="business"] .neural-node__button,
-.neural[data-active-lane="learning"] [data-lane="learning"] .neural-node__button,
-.neural[data-active-lane="ai"] [data-lane="ai"] .neural-node__button {
+/* nodes become interactive only while their lane is active; third-level
+ * plates are excluded here — they get pointer events only when live
+ * (depth 2), otherwise they would invisibly cover the child plates */
+.neural[data-active-lane="business"] [data-lane="business"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button,
+.neural[data-active-lane="learning"] [data-lane="learning"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button,
+.neural[data-active-lane="ai"] [data-lane="ai"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button {
   pointer-events: auto;
 }
 
