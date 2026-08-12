@@ -843,8 +843,11 @@ export default function NeuralWeb({
     cancelLeave();
     // already inside this branch — do nothing (no duplicate panels/retyping)
     if (activeLaneRef.current === lane.id) return;
-    if (pinnedLane && pinnedLane !== lane.id) return;
+    // hovering another lane always transfers control — a pin must never
+    // make a different lane feel "broken"
+    if (pinnedLane && pinnedLane !== lane.id) setPinnedLane(null);
     setFocusedChild(null);
+    setGrandPreview(null);
     setHoverLane(lane.id);
   }
 
