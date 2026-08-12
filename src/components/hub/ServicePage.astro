@@ -6,10 +6,14 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import StatusBadge from "../home/StatusBadge.astro";
 import { servicePages } from "../../data/services.js";
+import { detailsForParent } from "../../data/service-details/index.js";
 import { site } from "../../data/site.js";
 
 const { service } = Astro.props;
 const related = servicePages.filter((item) => item.slug !== service.slug);
+const detailByTitle = new Map(
+  detailsForParent(service.slug).map((item) => [item.title, item.slug]),
+);
 ---
 
 <BaseLayout
@@ -55,12 +59,23 @@ const related = servicePages.filter((item) => item.slug !== service.slug);
       <h2 class="service__h2" id="svc-includes">Что входит</h2>
       <ul class="service__includes">
         {
-          service.includes.map((item) => (
-            <li class="service__include">
-              <h3 class="service__include-title">{item.label}</h3>
-              <p class="service__include-text">{item.text}</p>
-            </li>
-          ))
+          service.includes.map((item) => {
+            const detailSlug = detailByTitle.get(item.label);
+            return (
+              <li class="service__include">
+                <h3 class="service__include-title">
+                  {detailSlug ? (
+                    <a href={`/uslugi/${service.slug}/${detailSlug}/`}>
+                      {item.label}
+                    </a>
+                  ) : (
+                    item.label
+                  )}
+                </h3>
+                <p class="service__include-text">{item.text}</p>
+              </li>
+            );
+          })
         }
       </ul>
     </section>

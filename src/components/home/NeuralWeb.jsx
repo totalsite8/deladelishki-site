@@ -1169,28 +1169,53 @@ export default function NeuralWeb({
                       opacity: 0,
                     }}
                   >
-                    <button
-                      type="button"
-                      className="neural-node__button"
-                      tabIndex={focusedChild === child.id ? 0 : -1}
-                      onMouseEnter={() =>
-                        setGrandPreview({
-                          label: grand.label,
-                          summary: grand.summary,
-                        })
-                      }
-                      onMouseLeave={() => setGrandPreview(null)}
-                      onFocus={() =>
-                        setGrandPreview({
-                          label: grand.label,
-                          summary: grand.summary,
-                        })
-                      }
-                      onBlur={() => setGrandPreview(null)}
-                    >
-                      <span className="neural-node__tag">Сервис</span>
-                      {grand.label}
-                    </button>
+                    {grand.href ? (
+                      <a
+                        className="neural-node__button"
+                        href={grand.href}
+                        tabIndex={focusedChild === child.id ? 0 : -1}
+                        onMouseEnter={() =>
+                          setGrandPreview({
+                            label: grand.label,
+                            summary: grand.summary,
+                          })
+                        }
+                        onMouseLeave={() => setGrandPreview(null)}
+                        onFocus={() =>
+                          setGrandPreview({
+                            label: grand.label,
+                            summary: grand.summary,
+                          })
+                        }
+                        onBlur={() => setGrandPreview(null)}
+                      >
+                        <span className="neural-node__tag">Сервис</span>
+                        {grand.label}
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        className="neural-node__button"
+                        tabIndex={focusedChild === child.id ? 0 : -1}
+                        onMouseEnter={() =>
+                          setGrandPreview({
+                            label: grand.label,
+                            summary: grand.summary,
+                          })
+                        }
+                        onMouseLeave={() => setGrandPreview(null)}
+                        onFocus={() =>
+                          setGrandPreview({
+                            label: grand.label,
+                            summary: grand.summary,
+                          })
+                        }
+                        onBlur={() => setGrandPreview(null)}
+                      >
+                        <span className="neural-node__tag">Сервис</span>
+                        {grand.label}
+                      </button>
+                    )}
                   </div>,
                 );
               });
