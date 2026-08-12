@@ -136,12 +136,13 @@ const ctaHref = `${homePath}kontakty/`;
 </div>
 
 <script>
-  // Classic burger menu: full-screen overlay, Escape closes, focus returns
-  // to the button, body scroll is locked while open. Vanilla enhancement —
-  // not a React island; without JS the inline layout still works.
+  // Compact dropdown menu: opens under the header, closes on Escape,
+  // outside click or link activation; focus returns to the button.
+  // Vanilla enhancement — not a React island.
   const burger = document.querySelector("[data-burger]");
   const menu = document.querySelector("[data-menu]");
   if (burger && menu) {
+    burger.dataset.ready = "true";
     const openLabel = burger.getAttribute("aria-label") || "Menu";
     const closeLabel = burger.dataset.closeLabel || openLabel;
 
@@ -149,7 +150,6 @@ const ctaHref = `${homePath}kontakty/`;
       burger.setAttribute("aria-expanded", String(open));
       burger.setAttribute("aria-label", open ? closeLabel : openLabel);
       menu.hidden = !open;
-      document.documentElement.classList.toggle("menu-open", open);
       if (open) {
         menu.querySelector("a")?.focus();
       } else if (refocus) {
@@ -165,6 +165,16 @@ const ctaHref = `${homePath}kontakty/`;
       if (event.key === "Escape" && !menu.hidden) {
         event.preventDefault();
         setOpen(false);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        !menu.hidden &&
+        !menu.contains(event.target) &&
+        !burger.contains(event.target)
+      ) {
+        setOpen(false, { refocus: false });
       }
     });
 
@@ -325,23 +335,33 @@ const ctaHref = `${homePath}kontakty/`;
 </style>
 
 <style>
-  /* Overlay is global (fixed positioning outside the header flow). */
+  /* Compact dropdown panel under the header — native pattern, works the
+   * same on desktop and mobile; no full-screen overlay, no scroll lock. */
   .site-menu {
     position: fixed;
-    inset: 0;
+    top: calc(3.5rem + var(--dd-space-xs));
+    right: var(--dd-container-gutter);
     z-index: var(--dd-z-overlay);
-    padding: calc(var(--dd-space-2xl) + 2rem) var(--dd-container-gutter)
-      var(--dd-space-xl);
-    background-color: color-mix(in srgb, var(--dd-color-canvas) 92%, transparent);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    width: min(26rem, calc(100vw - 2 * var(--dd-container-gutter)));
+    max-height: calc(100svh - 5rem);
     overflow-y: auto;
+    border: 1px solid var(--dd-color-border);
+    border-radius: var(--dd-radius-md);
+    background-color: var(--dd-color-surface-raised);
+    box-shadow: var(--dd-shadow-lg);
+    padding: var(--dd-space-xs);
+    animation: site-menu-in var(--dd-duration-fast) var(--dd-ease-out);
   }
 
-  .site-menu__nav {
-    width: 100%;
-    max-width: var(--dd-container-max);
-    margin: 0 auto;
+  @keyframes site-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .site-menu__list {
@@ -349,45 +369,48 @@ const ctaHref = `${homePath}kontakty/`;
     margin: 0;
     padding: 0;
     list-style: none;
-    border-bottom: 1px solid var(--dd-hairline);
   }
 
   .site-menu__link {
     display: flex;
-    align-items: baseline;
-    gap: var(--dd-space-md);
+    align-items: center;
+    gap: var(--dd-space-sm);
     min-height: var(--dd-node-size-min);
-    padding: var(--dd-space-sm) 0;
-    border-top: 1px solid var(--dd-hairline);
+    padding: 0.45em var(--dd-space-sm);
+    border-radius: var(--dd-radius-sm);
     color: var(--dd-color-text);
-    font-family: var(--dd-font-display);
-    font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
-    font-weight: 700;
+    font-size: 0.9375rem;
+    font-weight: 600;
     text-decoration: none;
-    transition: color var(--dd-duration-fast) var(--dd-ease-out);
+    transition:
+      background-color var(--dd-duration-fast) var(--dd-ease-out),
+      color var(--dd-duration-fast) var(--dd-ease-out);
   }
 
   .site-menu__link:hover {
+    background-color: color-mix(in srgb, var(--dd-color-action) 12%, transparent);
     color: var(--dd-color-action-hover);
   }
 
   .site-menu__link[aria-current="page"] {
     color: var(--dd-color-action);
+    background-color: color-mix(in srgb, var(--dd-color-action) 8%, transparent);
   }
 
   .site-menu__number {
     color: var(--dd-color-muted);
     font-family: var(--dd-font-mono);
-    font-size: 0.8125rem;
+    font-size: 0.6875rem;
     letter-spacing: var(--dd-eyebrow-tracking);
   }
 
   .site-menu__cta {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     min-height: var(--dd-node-size-min);
-    margin-top: var(--dd-space-lg);
-    padding: 0.6em 1.4em;
+    margin-top: var(--dd-space-xs);
+    padding: 0.55em 1.2em;
     border: 1px solid var(--dd-color-action);
     border-radius: var(--dd-radius-full);
     background-color: var(--dd-color-action);
@@ -401,17 +424,9 @@ const ctaHref = `${homePath}kontakty/`;
     background-color: var(--dd-color-action-hover);
     color: var(--dd-color-canvas);
   }
-</style>
 
-<style is:global>
-  /* body scroll lock while the menu is open; header stays above the
-     overlay so the burger can close it */
-  html.menu-open,
-  html.menu-open body {
-    overflow: hidden;
-  }
-
-  html.menu-open .site-header {
-    z-index: var(--dd-z-toast);
+  /* burger appears only when the JS enhancement is ready */
+  .site-header__burger:not([data-ready]) {
+    display: none;
   }
 </style>
