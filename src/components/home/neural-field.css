@@ -461,7 +461,17 @@
 
 .neural-mobile {
   position: relative;
+  z-index: 1;
   padding: var(--dd-space-sm) 0 0;
+}
+
+.neural-mobile__sys {
+  margin: 0 0 var(--dd-space-xs);
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
 }
 
 .neural-mobile__dd {
@@ -592,7 +602,7 @@
 
 .neural-mobile__gateway ul {
   display: grid;
-  gap: 0.4em;
+  gap: 0.2em;
   margin: 0 0 var(--dd-space-xs);
   padding: 0 0 0 var(--dd-space-sm);
   list-style: none;
@@ -601,8 +611,23 @@
 .neural-mobile__gateway li {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
   gap: 0.3em 1em;
+}
+
+.neural-mobile__gateway li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  color: var(--dd-color-text);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--lane-accent) 45%, transparent);
+}
+
+.neural-mobile__gateway li a:hover {
+  color: var(--lane-accent);
 }
 
 .neural-mobile__child-status {

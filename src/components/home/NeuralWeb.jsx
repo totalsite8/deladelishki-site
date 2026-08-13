@@ -1248,6 +1248,9 @@ export default function NeuralWeb({
                   </span>
                 </summary>
                 <div className="neural-mobile__lane-body">
+                  <p className="neural-mobile__sys">
+                    SYS://ЛИНИЯ-{lane.index}
+                  </p>
                   <p>{lane.summary}</p>
                   {lane.gateways.map((gateway) => (
                     <details className="neural-mobile__gateway" key={gateway.id}>

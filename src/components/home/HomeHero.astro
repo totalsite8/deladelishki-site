@@ -44,10 +44,26 @@ const sceneCopy = { mobileMore: "К разделу →" };
     copy={sceneCopy}
   />
 
+  <canvas class="home-hero__mfield" data-mfield aria-hidden="true"></canvas>
+
   <p class="home-hero__annotation" aria-hidden="true">
     Поле / 3 линии · 4 шлюза · полный стек
   </p>
 </section>
+
+<script>
+  // Mobile-only ambient particle field behind the hero copy: the "power"
+  // layer for small screens (desktop keeps the WebGL scene untouched).
+  import { initBizField } from "../hub/biz-interactions.js";
+  const mfield = document.querySelector("[data-mfield]");
+  if (
+    mfield &&
+    window.matchMedia("(max-width: 47.99rem)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    initBizField(mfield);
+  }
+</script>
 
 <style>
   .home-hero {
@@ -189,10 +205,22 @@ const sceneCopy = { mobileMore: "К разделу →" };
     opacity: 0.7;
   }
 
+  .home-hero__mfield {
+    display: none;
+  }
+
   @media (max-width: 47.99rem) {
     .home-hero {
       min-height: auto;
-      padding-top: var(--dd-space-xl);
+      padding-top: var(--dd-space-lg);
+    }
+
+    .home-hero__mfield {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
     }
 
     .home-hero__copy {
