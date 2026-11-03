@@ -327,6 +327,8 @@ export const neuralLanes = [
     accent: "business",
     status: "progress",
     href: "/uslugi/",
+    anchor: "#dlya-biznesa",
+    hint: "У меня бизнес — нужны заявки, сайт, реклама или CRM под ключ",
     gateways: [
       {
         id: "uslugi",
@@ -361,6 +363,8 @@ export const neuralLanes = [
     accent: "learning",
     status: "soon",
     href: "/kursy/",
+    anchor: "#dlya-obucheniya",
+    hint: "Хочу учиться — курсы, статьи и промпты из живой практики",
     gateways: [
       {
         id: "znaniya",
@@ -387,6 +391,8 @@ export const neuralLanes = [
     accent: "ai",
     status: "soon",
     href: "/navyki-agentov/",
+    anchor: "#dlya-ai-praktikov",
+    hint: "AI-практик — скилы агентов, сервисы и автоматизация",
     gateways: [
       {
         id: "instrumenty",

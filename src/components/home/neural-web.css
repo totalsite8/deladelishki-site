@@ -336,6 +336,16 @@
   position: relative;
   z-index: 1;
   padding-top: var(--dd-space-sm);
+  /* the scene root is pointer-events:none — mobile nav must be tappable */
+  pointer-events: auto;
+}
+
+.mnav__lead {
+  margin: 0 0 var(--dd-space-xs);
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
 }
 
 .mnav__selector {
@@ -345,7 +355,7 @@
 
 .mnav__lane {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 0.7em;
   min-height: var(--dd-node-size-min);
@@ -353,26 +363,36 @@
   border: 1px solid var(--dd-color-border);
   border-left: 2px solid var(--lane-accent);
   border-radius: var(--dd-radius-sm);
-  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 85%, transparent);
+  background:
+    radial-gradient(
+      ellipse 90% 100% at 0% 50%,
+      color-mix(in srgb, var(--lane-accent) 10%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--dd-color-surface-raised) 88%, transparent);
   color: var(--dd-color-text);
-  text-align: left;
-  cursor: pointer;
+  text-decoration: none;
   transition:
     border-color var(--dd-duration-base) var(--dd-ease-out),
     box-shadow var(--dd-duration-base) var(--dd-ease-out),
     transform var(--dd-duration-base) var(--dd-ease-out);
 }
 
-.mnav__lane.is-active {
+.mnav__lane:hover {
   border-color: var(--lane-accent);
-  box-shadow: 0 0 24px color-mix(in srgb, var(--lane-accent) 30%, transparent);
-  transform: scale(1.01);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--lane-accent) 28%, transparent);
+  transform: translateX(3px);
 }
 
 .mnav__lane-index {
   color: var(--lane-accent);
   font-family: var(--dd-font-mono);
   font-size: 0.6875rem;
+}
+
+.mnav__lane-main {
+  display: grid;
+  gap: 0.15em;
 }
 
 .mnav__lane-label {
@@ -382,6 +402,12 @@
   text-transform: uppercase;
 }
 
+.mnav__lane-hint {
+  color: var(--dd-color-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
 .mnav__lane-status {
   color: var(--dd-color-muted);
   font-family: var(--dd-font-mono);
@@ -389,6 +415,11 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.mnav__lane-arrow {
+  color: var(--lane-accent);
+  font-weight: 700;
 }
 
 .mnav__hint {

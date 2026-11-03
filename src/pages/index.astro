@@ -59,6 +59,19 @@ const description =
       { threshold: 0.08 },
     );
     inners.forEach((el) => io.observe(el));
+
+    // Cosmic theme change: a soft glow ignites when each lane section
+    // enters the viewport (mostly felt on mobile scroll journeys).
+    const sections = document.querySelectorAll(".home-section, .home-contacts");
+    const io2 = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          entry.target.classList.toggle("is-here", entry.isIntersecting);
+        });
+      },
+      { threshold: 0.25 },
+    );
+    sections.forEach((el) => io2.observe(el));
   }
 
   // subtle background parallax on tinted sections
@@ -157,5 +170,60 @@ const description =
   :global(.reveal.is-in) {
     opacity: 1;
     transform: none;
+  }
+
+  /* smooth journey between sections (reduced-motion baseline resets it) */
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+
+  /* cosmic theme change: glow ignites as a section takes over the screen */
+  :global(.home-section),
+  :global(.home-contacts) {
+    position: relative;
+  }
+
+  :global(.home-section)::before,
+  :global(.home-contacts)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 80% 30% at 50% 0%,
+      rgb(167 139 250 / 0.12),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 0.9s var(--dd-ease-out);
+    pointer-events: none;
+  }
+
+  :global(.home-section.is-here)::before,
+  :global(.home-contacts.is-here)::before {
+    opacity: 1;
+  }
+
+  :global(#dlya-biznesa)::before {
+    background: radial-gradient(
+      ellipse 80% 30% at 50% 0%,
+      rgb(167 139 250 / 0.16),
+      transparent 70%
+    );
+  }
+
+  :global(#dlya-obucheniya)::before {
+    background: radial-gradient(
+      ellipse 80% 30% at 50% 0%,
+      rgb(240 176 120 / 0.14),
+      transparent 70%
+    );
+  }
+
+  :global(#dlya-ai-praktikov)::before {
+    background: radial-gradient(
+      ellipse 80% 30% at 50% 0%,
+      rgb(127 195 240 / 0.14),
+      transparent 70%
+    );
   }
 </style>
