@@ -61,6 +61,14 @@
   pointer-events: none;
 }
 
+/* R3F canvas wrapper: same absolute fill; DOM overlay stays interactive
+ * above it, the click catcher above the canvas. */
+.neural-web__gl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
 /* When the WebGL engine is active it owns the motion — CSS idle drift and
  * static-edge SVG are not rendered/needed. */
 .neural--webgl .neural-lane {
