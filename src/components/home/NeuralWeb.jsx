@@ -56,6 +56,15 @@ export default function NeuralWeb({
   const [interacted, setInteracted] = useState(false);
 
   const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 47.99rem)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   const activeLane = hoverLane ?? pinnedLane;
   const activeLaneRef = useRef(null);
   activeLaneRef.current = activeLane;
@@ -576,6 +585,14 @@ export default function NeuralWeb({
       </div>
 
       {/* ---------- mobile composition (< 48rem, native details) ---------- */}
+      {hydrated && isMobile ? (
+        <MobileNavigator
+          lanes={lanes}
+          statusLabels={statusLabels}
+          accentVar={accentVar}
+          copy={copy}
+        />
+      ) : (
       <nav className="neural-mobile" aria-label="Карта портала">
         <p className="neural-mobile__dd">
           <span className="neural-mobile__dd-mono">{dd.monogram}</span>
@@ -632,6 +649,7 @@ export default function NeuralWeb({
           ))}
         </ul>
       </nav>
+      )}
 
       {/* ---------- no-JS fallback (desktop, before hydration) ---------- */}
       <nav className="neural-fallback" aria-label="Карта портала списком">
@@ -665,6 +683,106 @@ export default function NeuralWeb({
           ))}
         </ul>
       </nav>
+    </div>
+  );
+}
+
+// MobileNavigator — simplified mobile journey through the neural map:
+// pick a lane (big tappable selectors), the panel opens with a smooth
+// cosmic transition, then the topics scroll in a normal vertical flow.
+// Lives inside the single hero island; SSR/no-JS gets the <details> tree.
+function MobileNavigator({ lanes, statusLabels, accentVar, copy }) {
+  const [selected, setSelected] = useState(null);
+  const lane = lanes.find((item) => item.id === selected) ?? null;
+
+  return (
+    <div className="mnav">
+      <div className="mnav__selector" role="tablist" aria-label="Выбор направления">
+        {lanes.map((item) => {
+          const isActive = selected === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              className={`mnav__lane${isActive ? " is-active" : ""}`}
+              style={{ "--lane-accent": accentVar(item.accent) }}
+              onClick={() => setSelected((cur) => (cur === item.id ? null : item.id))}
+            >
+              <span className="mnav__lane-index">{item.index}</span>
+              <span className="mnav__lane-label">{item.label}</span>
+              <span className="mnav__lane-status">
+                {statusLabels[item.status] ?? item.status}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <AnimatePresence mode="wait">
+        {lane && (
+          <motion.div
+            key={lane.id}
+            className="mnav__panel"
+            style={{ "--lane-accent": accentVar(lane.accent) }}
+            initial={{ opacity: 0, y: 26, scale: 0.97 }}
+            animate={{
+              opacity: 1,
+              y: 0,
+              scale: 1,
+              transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+            }}
+            exit={{
+              opacity: 0,
+              y: -14,
+              scale: 0.98,
+              transition: { duration: 0.22 },
+            }}
+          >
+            <p className="mnav__sys">SYS://ЛИНИЯ-{lane.index}</p>
+            <p className="mnav__summary">{lane.summary}</p>
+            {lane.gateways.map((gateway) => (
+              <div className="mnav__gateway" key={gateway.id}>
+                <p className="mnav__gateway-title">{gateway.label}</p>
+                <ul className="mnav__topics">
+                  {gateway.children.map((child, index) => (
+                    <motion.li
+                      key={child.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                        transition: { delay: 0.12 + index * 0.05, duration: 0.35 },
+                      }}
+                    >
+                      {child.href ? (
+                        <a className="mnav__topic" href={child.href}>
+                          <span className="mnav__topic-label">{child.label}</span>
+                          <span className="mnav__topic-summary">{child.summary}</span>
+                          <span className="mnav__topic-arrow" aria-hidden="true">→</span>
+                        </a>
+                      ) : (
+                        <span className="mnav__topic mnav__topic--static">
+                          <span className="mnav__topic-label">{child.label}</span>
+                          <span className="mnav__topic-summary">{child.summary}</span>
+                        </span>
+                      )}
+                    </motion.li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            <a className="mnav__open" href={lane.href}>
+              {copy.mobileMore}
+            </a>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!lane && (
+        <p className="mnav__hint">Выберите направление — покажу его состав</p>
+      )}
     </div>
   );
 }

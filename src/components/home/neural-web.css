@@ -329,3 +329,170 @@
 .neural--webgl .neural-node {
   transition: none;
 }
+
+/* ---------- mobile navigator (interactive journey) ---------- */
+
+.mnav {
+  position: relative;
+  z-index: 1;
+  padding-top: var(--dd-space-sm);
+}
+
+.mnav__selector {
+  display: grid;
+  gap: var(--dd-space-xs);
+}
+
+.mnav__lane {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7em;
+  min-height: var(--dd-node-size-min);
+  padding: 0.7em var(--dd-space-sm);
+  border: 1px solid var(--dd-color-border);
+  border-left: 2px solid var(--lane-accent);
+  border-radius: var(--dd-radius-sm);
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 85%, transparent);
+  color: var(--dd-color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dd-duration-base) var(--dd-ease-out),
+    box-shadow var(--dd-duration-base) var(--dd-ease-out),
+    transform var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.mnav__lane.is-active {
+  border-color: var(--lane-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--lane-accent) 30%, transparent);
+  transform: scale(1.01);
+}
+
+.mnav__lane-index {
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+}
+
+.mnav__lane-label {
+  font-family: var(--dd-font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-transform: uppercase;
+}
+
+.mnav__lane-status {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mnav__hint {
+  margin: var(--dd-space-sm) 0 0;
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.mnav__panel {
+  margin-top: var(--dd-space-sm);
+  padding: var(--dd-space-md);
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 40%, transparent);
+  border-radius: var(--dd-radius-md);
+  background:
+    radial-gradient(
+      ellipse 90% 40% at 50% 0%,
+      color-mix(in srgb, var(--lane-accent) 12%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--dd-color-canvas) 88%, transparent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--lane-accent) 14%, transparent);
+}
+
+.mnav__sys {
+  margin: 0 0 var(--dd-space-xs);
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.mnav__summary {
+  margin: 0 0 var(--dd-space-md);
+  color: var(--dd-color-muted);
+  font-size: 0.875rem;
+}
+
+.mnav__gateway + .mnav__gateway {
+  margin-top: var(--dd-space-sm);
+}
+
+.mnav__gateway-title {
+  margin: 0 0 var(--dd-space-xs);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.mnav__topics {
+  display: grid;
+  gap: var(--dd-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mnav__topic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.1em var(--dd-space-sm);
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  padding: 0.6em var(--dd-space-sm);
+  border: 1px solid var(--dd-color-border);
+  border-left: 2px solid var(--lane-accent);
+  border-radius: var(--dd-radius-sm);
+  background-color: var(--dd-color-surface-raised);
+  color: var(--dd-color-text);
+  text-decoration: none;
+  transition:
+    border-color var(--dd-duration-fast) var(--dd-ease-out),
+    transform var(--dd-duration-fast) var(--dd-ease-out);
+}
+
+.mnav__topic:hover {
+  border-color: var(--lane-accent);
+  transform: translateX(2px);
+}
+
+.mnav__topic-label {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.mnav__topic-summary {
+  grid-column: 1 / -1;
+  color: var(--dd-color-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.mnav__topic-arrow {
+  color: var(--lane-accent);
+  font-weight: 700;
+}
+
+.mnav__open {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  margin-top: var(--dd-space-sm);
+  color: var(--lane-accent);
+  font-weight: 700;
+  text-decoration: none;
+}
