@@ -33,7 +33,9 @@ jobs:
         continue-on-error: true
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete
+          # --delete mirrors dist/ onto the host, but /razbor/ is managed
+          # manually on the server and must never be touched
+          switches: -avzr --delete --exclude 'razbor/'
           path: dist/
           remote_path: ${{ secrets.DEPLOY_PATH }}
           remote_host: ${{ secrets.SSH_HOST }}
@@ -46,7 +48,7 @@ jobs:
         if: steps.deploy_attempt_1.outcome == 'failure'
         uses: burnett01/rsync-deployments@7.0.1
         with:
-          switches: -avzr --delete
+          switches: -avzr --delete --exclude 'razbor/'
           path: dist/
           remote_path: ${{ secrets.DEPLOY_PATH }}
           remote_host: ${{ secrets.SSH_HOST }}
