@@ -1,0 +1,684 @@
+/* NeuralField — organic 2.5D network for the hero of "OPERATOR'S UNIVERSE".
+ *
+ * Depth is expressed with scale / opacity / selective blur only; connectors
+ * are one aria-hidden SVG (cubic Bézier, vector-effect keeps 1px strokes).
+ * The scene layer is pointer-events:none so the copy column above it stays
+ * clickable — interactive nodes re-enable pointer events on themselves.
+ *
+ * Three render modes, one data source:
+ * - desktop scene (only after hydration, >= 48rem);
+ * - mobile composition (native <details>, works without JS);
+ * - no-JS fallback list (desktop, before hydration).
+ */
+
+.neural {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.neural__sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- visibility orchestration ---------- */
+
+.neural__desktop {
+  display: none;
+}
+
+.neural[data-hydrated] .neural__desktop {
+  display: block;
+}
+
+.neural[data-hydrated] .neural-fallback {
+  display: none;
+}
+
+@media (max-width: 47.99rem) {
+  .neural {
+    position: relative;
+    inset: auto;
+  }
+
+  .neural[data-hydrated] .neural__desktop {
+    display: none;
+  }
+
+  .neural-fallback {
+    display: none;
+  }
+}
+
+@media (min-width: 48rem) {
+  .neural-mobile {
+    display: none;
+  }
+}
+
+/* ---------- desktop scene ---------- */
+
+.neural__desktop {
+  position: absolute;
+  inset: 0;
+}
+
+.neural__depth {
+  position: absolute;
+  inset: 0;
+}
+
+.neural__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.neural-edge {
+  fill: none;
+  stroke: var(--dd-hairline);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+
+.neural-edge--ambient {
+  opacity: 0.6;
+}
+
+.neural-edge--pulse {
+  stroke: var(--dd-connector-color);
+  stroke-dasharray: 3 14;
+  animation: neural-pulse 14s linear infinite;
+}
+
+.neural-edge--continuation {
+  opacity: 0.3;
+}
+
+.neural-edge--system {
+  stroke: var(--dd-connector-color);
+}
+
+.neural-edge--active {
+  stroke-width: 1.5px;
+}
+
+.neural-edge--child {
+  stroke-width: 1px;
+  opacity: 0.85;
+}
+
+@keyframes neural-pulse {
+  to {
+    stroke-dashoffset: -170;
+  }
+}
+
+/* background signal dots */
+.neural-signal {
+  position: absolute;
+  width: var(--dd-signal-dot-size);
+  height: var(--dd-signal-dot-size);
+  border-radius: var(--dd-radius-full);
+  background-color: var(--dd-color-action);
+  opacity: 0.45;
+  transform: translate(-50%, -50%);
+}
+
+.neural-signal:nth-of-type(3n) {
+  opacity: 0.25;
+}
+
+/* idle drift: three variants, different rhythm — never uniform motion */
+.neural-drift-1 {
+  animation: neural-drift-1 11s ease-in-out infinite alternate;
+}
+
+.neural-drift-2 {
+  animation: neural-drift-2 15s ease-in-out infinite alternate;
+}
+
+.neural-drift-3 {
+  animation: neural-drift-3 18s ease-in-out infinite alternate;
+}
+
+.neural-drift-a {
+  animation: neural-drift-1 13s ease-in-out infinite alternate;
+}
+
+.neural-drift-b {
+  animation: neural-drift-2 16s ease-in-out infinite alternate;
+}
+
+.neural-drift-c {
+  animation: neural-drift-3 19s ease-in-out infinite alternate;
+}
+
+/* calmer once the visitor started interacting */
+.neural--interacted .neural-signal,
+.neural--interacted .neural-lane {
+  animation-duration: 30s;
+}
+
+@keyframes neural-drift-1 {
+  from {
+    margin-top: -4px;
+    margin-left: -6px;
+  }
+  to {
+    margin-top: 5px;
+    margin-left: 4px;
+  }
+}
+
+@keyframes neural-drift-2 {
+  from {
+    margin-top: 6px;
+    margin-left: -3px;
+  }
+  to {
+    margin-top: -5px;
+    margin-left: 7px;
+  }
+}
+
+@keyframes neural-drift-3 {
+  from {
+    margin-top: -3px;
+    margin-left: 5px;
+  }
+  to {
+    margin-top: 4px;
+    margin-left: -6px;
+  }
+}
+
+/* operator signature: coordinate mark in the depth, never the center */
+.neural-dd {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  justify-items: center;
+  gap: 0.2em;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.neural-dd__monogram {
+  font-family: var(--dd-font-display);
+  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: linear-gradient(120deg, var(--dd-grad-from), var(--dd-grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  opacity: 0.85;
+}
+
+.neural-dd__media {
+  width: clamp(4rem, 8vw, 7rem);
+  border-radius: var(--dd-radius-full);
+}
+
+.neural-dd__label {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0.8;
+}
+
+/* lane hubs: typographic, asymmetric, different depths */
+.neural-lane {
+  position: absolute;
+  transition:
+    transform var(--dd-duration-slow) var(--dd-ease-out),
+    opacity var(--dd-duration-base) var(--dd-ease-out),
+    filter var(--dd-duration-base) var(--dd-ease-out);
+}
+
+/* physics mode owns transform and drift — CSS yields to the rAF loop */
+.neural--physical .neural-lane {
+  transition:
+    opacity var(--dd-duration-base) var(--dd-ease-out),
+    filter var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.neural--physical .neural-signal,
+.neural--physical .neural-lane {
+  animation: none;
+}
+
+/* cursor proximity lights the hub up (smooth --prox, written per frame) */
+.neural-lane__label {
+  text-shadow: 0 0 calc(var(--prox, 0) * 22px) var(--lane-accent);
+}
+
+.neural-lane.is-dim {
+  filter: blur(2px);
+}
+
+.neural-lane__button {
+  display: grid;
+  justify-items: start;
+  gap: 0.15em;
+  min-width: var(--dd-node-size-min);
+  min-height: var(--dd-node-size-min);
+  padding: 0.4em 0.6em;
+  border: 0;
+  background: none;
+  color: var(--dd-color-text);
+  text-align: left;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.neural-lane__index {
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+}
+
+.neural-lane__label {
+  font-family: var(--dd-font-display);
+  font-size: clamp(1.2rem, 1rem + 1.1vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-wrap: balance;
+}
+
+.neural-lane__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.neural-lane__status::before {
+  content: "";
+  width: var(--dd-status-dot-size);
+  height: var(--dd-status-dot-size);
+  border-radius: var(--dd-radius-full);
+  background-color: var(--lane-accent);
+}
+
+.neural-lane.is-active .neural-lane__label {
+  color: var(--lane-accent);
+  text-shadow: 0 0 24px var(--lane-accent);
+}
+
+.neural-lane.is-active .neural-lane__button {
+  border-bottom: 1px solid var(--lane-accent);
+}
+
+/* gateways and child nodes */
+.neural-node {
+  position: absolute;
+  z-index: 7;
+  transform: translate(-50%, -50%);
+}
+
+.neural-node__button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  min-height: var(--dd-node-size-min);
+  padding: 0.6em 1.1em;
+  border-radius: var(--dd-radius-sm);
+  cursor: pointer;
+  pointer-events: none;
+  white-space: nowrap;
+  transition:
+    border-color var(--dd-duration-fast) var(--dd-ease-out),
+    box-shadow var(--dd-duration-fast) var(--dd-ease-out),
+    background-color var(--dd-duration-fast) var(--dd-ease-out);
+}
+
+/* nodes become interactive only while their lane is active; third-level
+ * plates are excluded here — they get pointer events only when live
+ * (depth 2), otherwise they would invisibly cover the child plates */
+.neural[data-active-lane="business"] [data-lane="business"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button,
+.neural[data-active-lane="learning"] [data-lane="learning"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button,
+.neural[data-active-lane="ai"] [data-lane="ai"]:is(.neural-node--gateway, .neural-node--child) .neural-node__button {
+  pointer-events: auto;
+}
+
+.neural-node--gateway .neural-node__button {
+  border: 1px solid var(--lane-accent);
+  background-color: color-mix(in srgb, var(--dd-color-canvas) 78%, transparent);
+  color: var(--dd-color-text);
+  font-family: var(--dd-font-mono);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--lane-accent) 40%, transparent),
+    inset 0 0 12px color-mix(in srgb, var(--lane-accent) 12%, transparent);
+}
+
+.neural-node--child .neural-node__button {
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 55%, var(--dd-color-border));
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 94%, transparent);
+  color: var(--dd-color-text);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  box-shadow: 0 2px 14px rgb(0 0 0 / 0.4);
+}
+
+.neural-node--child .neural-node__button:hover,
+.neural-node--child .neural-node__button:focus-visible {
+  border-color: var(--lane-accent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--lane-accent) 30%, transparent);
+}
+
+.neural-node__dot {
+  width: var(--dd-status-dot-size);
+  height: var(--dd-status-dot-size);
+  border-radius: var(--dd-radius-full);
+  background-color: var(--lane-accent);
+  flex-shrink: 0;
+}
+
+/* summary annotation card: bottom-left, over the quiet zone of the scene */
+.neural-summary {
+  position: absolute;
+  left: var(--dd-container-gutter);
+  bottom: 5%;
+  z-index: 8;
+  max-width: min(21rem, 44%);
+  padding: var(--dd-space-sm) var(--dd-space-md);
+  border-left: 2px solid var(--lane-accent);
+  border-radius: var(--dd-radius-sm);
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 92%, transparent);
+  pointer-events: none;
+}
+
+.neural-summary::before {
+  opacity: 0.5;
+  animation: neural-glint-spin 7s linear infinite;
+}
+
+.neural-summary a {
+  pointer-events: auto;
+}
+
+.neural-summary__kind {
+  margin: 0 0 0.2em;
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.neural-summary__title {
+  margin: 0;
+  font-weight: 700;
+}
+
+.neural-summary__text {
+  margin: 0.2em 0 0.4em;
+  color: var(--dd-color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.neural-summary__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em 1em;
+  margin: 0;
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ---------- mobile composition ---------- */
+
+.neural-mobile {
+  position: relative;
+  z-index: 1;
+  padding: var(--dd-space-sm) 0 0;
+}
+
+.neural-mobile__sys {
+  margin: 0 0 var(--dd-space-xs);
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.neural-mobile__dd {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  margin: 0 0 var(--dd-space-sm);
+}
+
+.neural-mobile__dd-mono {
+  font-family: var(--dd-font-display);
+  font-weight: 700;
+  background: linear-gradient(120deg, var(--dd-grad-from), var(--dd-grad-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.neural-mobile__dd-label {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.neural-mobile__lanes {
+  position: relative;
+  display: grid;
+  gap: var(--dd-space-sm);
+  margin: 0;
+  padding: 0 0 0 var(--dd-space-md);
+  list-style: none;
+}
+
+/* one continuous neural link threading the three lanes */
+.neural-mobile__lanes::before {
+  content: "";
+  position: absolute;
+  left: 0.35rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    var(--dd-lane-business),
+    var(--dd-lane-learning),
+    var(--dd-lane-ai)
+  );
+  opacity: 0.45;
+}
+
+.neural-mobile__lane {
+  border: 1px solid var(--dd-color-border);
+  border-left: 2px solid var(--lane-accent);
+  background-color: var(--dd-color-surface-raised);
+  transition:
+    border-color var(--dd-duration-base) var(--dd-ease-out),
+    box-shadow var(--dd-duration-base) var(--dd-ease-out),
+    transform var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.neural-mobile__lane[open] {
+  border-color: var(--lane-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--lane-accent) 25%, transparent);
+  transform: scale(1.01);
+}
+
+.neural-mobile__lane > summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7em;
+  min-height: var(--dd-node-size-min);
+  padding: var(--dd-space-xs) var(--dd-space-sm);
+  cursor: pointer;
+  list-style: none;
+}
+
+.neural-mobile__lane > summary::-webkit-details-marker {
+  display: none;
+}
+
+.neural-mobile__lane-index {
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+}
+
+.neural-mobile__lane-label {
+  font-family: var(--dd-font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-transform: uppercase;
+}
+
+.neural-mobile__lane-status {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.neural-mobile__lane-body {
+  padding: 0 var(--dd-space-sm) var(--dd-space-sm);
+  color: var(--dd-color-muted);
+  font-size: 0.875rem;
+}
+
+.neural-mobile__lane-body > p {
+  margin: 0 0 var(--dd-space-sm);
+}
+
+.neural-mobile__gateway {
+  margin-bottom: var(--dd-space-xs);
+  border-top: 1px solid var(--dd-hairline);
+}
+
+.neural-mobile__gateway > summary {
+  min-height: var(--dd-node-size-min);
+  padding: 0.5em 0;
+  color: var(--dd-color-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.neural-mobile__gateway ul {
+  display: grid;
+  gap: 0.2em;
+  margin: 0 0 var(--dd-space-xs);
+  padding: 0 0 0 var(--dd-space-sm);
+  list-style: none;
+}
+
+.neural-mobile__gateway li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3em 1em;
+}
+
+.neural-mobile__gateway li a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  color: var(--dd-color-text);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--lane-accent) 45%, transparent);
+}
+
+.neural-mobile__gateway li a:hover {
+  color: var(--lane-accent);
+}
+
+.neural-mobile__child-status {
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.neural-mobile__more {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  font-size: 0.875rem;
+}
+
+/* ---------- no-JS fallback ---------- */
+
+.neural-fallback {
+  position: absolute;
+  right: var(--dd-container-gutter);
+  top: 18%;
+  max-width: 26rem;
+  padding: var(--dd-space-md);
+  border: 1px solid var(--dd-color-border);
+  background-color: var(--dd-color-surface);
+  font-size: 0.875rem;
+}
+
+.neural-fallback ul {
+  margin: 0.3em 0;
+  padding-left: 1.2em;
+}
+
+.neural-fallback__status {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+}
+
+/* ---------- reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .neural-lane.is-dim {
+    filter: none;
+  }
+
+  .neural-edge--pulse {
+    animation: none;
+    stroke-dasharray: none;
+  }
+}

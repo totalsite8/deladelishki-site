@@ -1,0 +1,45 @@
+---
+// Honest publication status as a first-class design element: small mono
+// label with an indicator dot. Tones map to status tokens in tokens.css.
+import { STATUS } from "../../data/home.js";
+
+const { status } = Astro.props;
+const item = STATUS[status] ?? STATUS.soon;
+---
+
+<span class:list={["status-badge", `status-badge--${item.tone}`]}>
+  <span class="status-badge__dot" aria-hidden="true"></span>
+  {item.label}
+</span>
+
+<style>
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .status-badge__dot {
+    width: var(--dd-status-dot-size);
+    height: var(--dd-status-dot-size);
+    border-radius: var(--dd-radius-full);
+  }
+
+  .status-badge--published .status-badge__dot {
+    background-color: var(--dd-status-published);
+  }
+
+  .status-badge--progress .status-badge__dot {
+    background-color: var(--dd-status-progress);
+  }
+
+  .status-badge--soon .status-badge__dot {
+    background-color: var(--dd-status-soon);
+  }
+</style>

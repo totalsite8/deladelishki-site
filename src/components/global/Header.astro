@@ -23,13 +23,45 @@ const navItems = siteTree
 
 const currentPath = Astro.url.pathname;
 
+// Burger menu lists the draft hubs too (they exist locally as noindex
+// drafts). Published-only filter above stays untouched for the inline nav.
+const menuItems = siteTree
+  .filter((node) => node.status !== "utility" && node.paths?.[locale])
+  .sort((a, b) => a.order - b.order)
+  .map((node) => ({ title: node.title, href: node.paths[locale] }));
+
 const copy = {
-  ru: { nav: "Основная навигация", home: "Dela Delishki — на главную" },
-  en: { nav: "Primary navigation", home: "Dela Delishki — home" },
+  ru: {
+    nav: "Основная навигация",
+    home: "Dela Delishki — на главную",
+    cta: "Обсудить проект",
+    menu: "Меню",
+    menuOpen: "Открыть меню",
+    menuClose: "Закрыть меню",
+    menuNav: "Разделы сайта",
+  },
+  en: {
+    nav: "Primary navigation",
+    home: "Dela Delishki — home",
+    cta: "Discuss a project",
+    menu: "Menu",
+    menuOpen: "Open menu",
+    menuClose: "Close menu",
+    menuNav: "Site sections",
+  },
 }[locale] ?? {
   nav: "Основная навигация",
   home: "Dela Delishki — на главную",
+  cta: "Обсудить проект",
+  menu: "Меню",
+  menuOpen: "Открыть меню",
+  menuClose: "Закрыть меню",
+  menuNav: "Разделы сайта",
 };
+
+// The lead CTA points to the contacts hub (draft page, exists locally).
+// The absolute path works from any page.
+const ctaHref = `${homePath}kontakty/`;
 ---
 
 <header class="site-header">
@@ -63,13 +95,107 @@ const copy = {
         </nav>
       )
     }
+    <a class="site-header__cta" href={ctaHref}>{copy.cta}</a>
+    <button
+      class="site-header__burger"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-menu"
+      aria-label={copy.menuOpen}
+      data-close-label={copy.menuClose}
+      data-burger
+    >
+      <span class="site-header__burger-icon" aria-hidden="true"></span>
+      <span class="site-header__burger-text">{copy.menu}</span>
+    </button>
   </div>
 </header>
 
+<div class="site-menu" id="site-menu" data-menu hidden>
+  <nav class="site-menu__nav" aria-label={copy.menuNav}>
+    <ul class="site-menu__list">
+      {
+        menuItems.map((item, index) => (
+          <li class="site-menu__item">
+            <a
+              class="site-menu__link"
+              href={item.href}
+              aria-current={currentPath === item.href ? "page" : undefined}
+            >
+              <span class="site-menu__number" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              {item.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <a class="site-menu__cta" href={ctaHref}>{copy.cta}</a>
+  </nav>
+</div>
+
+<script>
+  // Compact dropdown menu: opens under the header, closes on Escape,
+  // outside click or link activation; focus returns to the button.
+  // Vanilla enhancement — not a React island.
+  const burger = document.querySelector("[data-burger]");
+  const menu = document.querySelector("[data-menu]");
+  if (burger && menu) {
+    burger.dataset.ready = "true";
+    const openLabel = burger.getAttribute("aria-label") || "Menu";
+    const closeLabel = burger.dataset.closeLabel || openLabel;
+
+    function setOpen(open, { refocus = true } = {}) {
+      burger.setAttribute("aria-expanded", String(open));
+      burger.setAttribute("aria-label", open ? closeLabel : openLabel);
+      menu.hidden = !open;
+      if (open) {
+        menu.querySelector("a")?.focus();
+      } else if (refocus) {
+        burger.focus();
+      }
+    }
+
+    burger.addEventListener("click", () => {
+      setOpen(burger.getAttribute("aria-expanded") !== "true");
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !menu.hidden) {
+        event.preventDefault();
+        setOpen(false);
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (
+        !menu.hidden &&
+        !menu.contains(event.target) &&
+        !burger.contains(event.target)
+      ) {
+        setOpen(false, { refocus: false });
+      }
+    });
+
+    menu.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setOpen(false, { refocus: false });
+    });
+  }
+</script>
+
 <style>
+  /* Sticky with a functional translucent backdrop: readability over the
+   * hero field is the only allowed "glass" — not decoration. Kept quiet so
+   * the header reads as part of the hero, not a separate strip. */
   .site-header {
-    border-bottom: 1px solid var(--dd-color-border);
-    background-color: var(--dd-color-canvas);
+    position: sticky;
+    top: 0;
+    z-index: var(--dd-z-header);
+    border-bottom: 1px solid var(--dd-hairline);
+    background-color: color-mix(in srgb, var(--dd-color-canvas) 62%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .site-header__inner {
@@ -120,5 +246,187 @@ const copy = {
     color: var(--dd-color-action);
     text-decoration: underline;
     text-underline-offset: 0.15em;
+  }
+
+  .site-header__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--dd-node-size-min);
+    padding: 0.4em 1.2em;
+    border: 1px solid var(--dd-color-action);
+    border-radius: var(--dd-radius-full);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    transition:
+      background-color var(--dd-duration-fast) var(--dd-ease-out),
+      border-color var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .site-header__cta:hover {
+    border-color: var(--dd-color-action-hover);
+    background-color: var(--dd-color-action-hover);
+    color: var(--dd-color-canvas);
+  }
+
+  .site-header__burger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-height: var(--dd-node-size-min);
+    padding: 0.4em 1em;
+    border: 1px solid var(--dd-color-border);
+    border-radius: var(--dd-radius-full);
+    background: none;
+    color: var(--dd-color-text);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition:
+      border-color var(--dd-duration-fast) var(--dd-ease-out),
+      color var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .site-header__burger:hover {
+    border-color: var(--dd-color-action);
+    color: var(--dd-color-action-hover);
+  }
+
+  .site-header__burger-icon {
+    position: relative;
+    width: 1.1em;
+    height: 2px;
+    background-color: currentColor;
+  }
+
+  .site-header__burger-icon::before,
+  .site-header__burger-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: currentColor;
+    transition: transform var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .site-header__burger-icon::before {
+    transform: translateY(-5px);
+  }
+
+  .site-header__burger-icon::after {
+    transform: translateY(5px);
+  }
+
+  .site-header__burger[aria-expanded="true"] .site-header__burger-icon {
+    background-color: transparent;
+  }
+
+  .site-header__burger[aria-expanded="true"] .site-header__burger-icon::before {
+    transform: rotate(45deg);
+  }
+
+  .site-header__burger[aria-expanded="true"] .site-header__burger-icon::after {
+    transform: rotate(-45deg);
+  }
+</style>
+
+<style>
+  /* Compact dropdown panel under the header — native pattern, works the
+   * same on desktop and mobile; no full-screen overlay, no scroll lock. */
+  .site-menu {
+    position: fixed;
+    top: calc(3.5rem + var(--dd-space-xs));
+    right: var(--dd-container-gutter);
+    z-index: var(--dd-z-overlay);
+    width: min(26rem, calc(100vw - 2 * var(--dd-container-gutter)));
+    max-height: calc(100svh - 5rem);
+    overflow-y: auto;
+    border: 1px solid var(--dd-color-border);
+    border-radius: var(--dd-radius-md);
+    background-color: var(--dd-color-surface-raised);
+    box-shadow: var(--dd-shadow-lg);
+    padding: var(--dd-space-xs);
+    animation: site-menu-in var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  @keyframes site-menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .site-menu__list {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-menu__link {
+    display: flex;
+    align-items: center;
+    gap: var(--dd-space-sm);
+    min-height: var(--dd-node-size-min);
+    padding: 0.45em var(--dd-space-sm);
+    border-radius: var(--dd-radius-sm);
+    color: var(--dd-color-text);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      background-color var(--dd-duration-fast) var(--dd-ease-out),
+      color var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .site-menu__link:hover {
+    background-color: color-mix(in srgb, var(--dd-color-action) 12%, transparent);
+    color: var(--dd-color-action-hover);
+  }
+
+  .site-menu__link[aria-current="page"] {
+    color: var(--dd-color-action);
+    background-color: color-mix(in srgb, var(--dd-color-action) 8%, transparent);
+  }
+
+  .site-menu__number {
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: var(--dd-eyebrow-tracking);
+  }
+
+  .site-menu__cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--dd-node-size-min);
+    margin-top: var(--dd-space-xs);
+    padding: 0.55em 1.2em;
+    border: 1px solid var(--dd-color-action);
+    border-radius: var(--dd-radius-full);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .site-menu__cta:hover {
+    border-color: var(--dd-color-action-hover);
+    background-color: var(--dd-color-action-hover);
+    color: var(--dd-color-canvas);
+  }
+
+  /* burger appears only when the JS enhancement is ready */
+  .site-header__burger:not([data-ready]) {
+    display: none;
   }
 </style>

@@ -74,6 +74,53 @@
   --dd-duration-slow: 600ms;
   --dd-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --dd-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  /* Soft overshoot for the home scene expansion and node snaps. */
+  --dd-ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* Home page "OPERATOR'S UNIVERSE". New color values below are PROVISIONAL:
+   * they must be verified against the brand master file before release;
+   * components must reference the tokens, never the raw values. */
+  --dd-hero-display: clamp(2.25rem, 1.35rem + 4.5vw, 4.25rem);
+  --dd-container-max: 72rem;
+  --dd-container-gutter: var(--dd-space-md);
+  --dd-eyebrow-size: 0.75rem;
+  --dd-eyebrow-tracking: 0.16em;
+
+  /* Lane accents: markers, indicator dots and hairlines only — never fills. */
+  --dd-lane-business: #a78bfa; /* provisional */
+  --dd-lane-learning: #f0b078; /* provisional */
+  --dd-lane-ai: #7fc3f0; /* provisional */
+
+  /* Domain channels for the six service directions: thin lines and mono
+   * labels inside the violet-blue band, not a rainbow. */
+  --dd-domain-development: #8ab4ff; /* provisional */
+  --dd-domain-design: #c4b5fd; /* provisional */
+  --dd-domain-marketing: #a78bfa; /* provisional */
+  --dd-domain-ai: #7dd3fc; /* provisional */
+  --dd-domain-photo: #e2c6ff; /* provisional */
+  --dd-domain-education: #93c5fd; /* provisional */
+
+  /* Core-scene connectors and nodes. */
+  --dd-connector-color: rgb(167 139 250 / 0.28); /* provisional */
+  --dd-connector-active: rgb(196 181 253 / 0.85); /* provisional */
+  --dd-connector-width: 1px;
+  --dd-node-size-min: 2.75rem; /* >= 44px touch target */
+
+  /* Neural field: engineering grid, hairlines, background signal dots. */
+  --dd-grid-line: rgb(167 139 250 / 0.05); /* provisional */
+  --dd-hairline: rgb(167 139 250 / 0.16); /* provisional */
+  --dd-signal-dot-size: 0.375rem;
+
+  /* Brand gradient stops (reference existing brand tokens). */
+  --dd-grad-deep: var(--dd-brand-deep-violet);
+  --dd-grad-from: var(--dd-brand-purple);
+  --dd-grad-to: var(--dd-brand-electric);
+
+  /* Status layer: honest publication states as a first-class design element. */
+  --dd-status-dot-size: 0.5rem;
+  --dd-status-published: #4ade80; /* provisional */
+  --dd-status-progress: #fbbf24; /* provisional */
+  --dd-status-soon: #9d92c4; /* provisional */
 }
 
 /* Portal: dark technological context (home, services, AI, apps). */
@@ -81,6 +128,7 @@
   color-scheme: dark;
   --dd-color-canvas: #0c0913;
   --dd-color-surface: #16101f;
+  --dd-color-surface-raised: #1d1629; /* provisional */
   --dd-color-text: #f3effa;
   --dd-color-muted: #b3a9c9;
   --dd-color-border: #2d2440;
@@ -97,6 +145,7 @@
   color-scheme: light;
   --dd-color-canvas: #faf9fc;
   --dd-color-surface: #ffffff;
+  --dd-color-surface-raised: #f4f1fa; /* provisional */
   --dd-color-text: #191325;
   --dd-color-muted: #575069;
   --dd-color-border: #e4def0;

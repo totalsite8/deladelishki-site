@@ -1,0 +1,114 @@
+---
+// Section 01 — the four gateways. Open composition: hairline rows with mono
+// numbers and asymmetric indents, not a card grid.
+import { gateways } from "../../data/home.js";
+import SectionHeading from "./SectionHeading.astro";
+import StatusBadge from "./StatusBadge.astro";
+---
+
+<section class="home-section gateway-section" aria-labelledby="gateways-title">
+  <div class="home-section__inner">
+    <SectionHeading
+      eyebrow="01 / Шлюзы"
+      title="Четыре входа в портал"
+      lead="Сеть первого экрана распадается на четыре направления. Каждое ведёт в свою линию — выберите свою."
+    />
+    <ul class="gateway-rows">
+      {
+        gateways.map((gateway, index) => (
+          <li class="gateway-row" style={`--row-indent: ${index * 2.5}rem`}>
+            <a
+              class="gateway-row__link"
+              href={gateway.href}
+              style={`--lane-accent: var(--dd-lane-${gateway.accent})`}
+              aria-labelledby={`gateway-${gateway.id}`}
+            >
+              <span class="gateway-row__number" aria-hidden="true">
+                {gateway.number}
+              </span>
+              <span class="gateway-row__main">
+                <span class="gateway-row__title" id={`gateway-${gateway.id}`}>
+                  {gateway.title}
+                </span>
+                <span class="gateway-row__summary">{gateway.summary}</span>
+              </span>
+              <StatusBadge status={gateway.status} />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .gateway-rows {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-bottom: 1px solid var(--dd-hairline);
+  }
+
+  .gateway-row__link {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--dd-space-sm) var(--dd-space-md);
+    min-height: var(--dd-node-size-min);
+    padding: var(--dd-space-sm) 0;
+    border-top: 1px solid var(--dd-hairline);
+    color: var(--dd-color-text);
+    text-decoration: none;
+    transition: background-color var(--dd-duration-base) var(--dd-ease-out);
+  }
+
+  .gateway-row__link:hover {
+    background-color: color-mix(in srgb, var(--dd-color-surface-raised) 60%, transparent);
+  }
+
+  .gateway-row__link:hover .gateway-row__title {
+    color: var(--lane-accent);
+  }
+
+  .gateway-row__number {
+    color: var(--lane-accent);
+    font-family: var(--dd-font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: var(--dd-eyebrow-tracking);
+  }
+
+  .gateway-row__main {
+    display: grid;
+    gap: 0.15em;
+  }
+
+  .gateway-row__title {
+    font-family: var(--dd-font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    transition: color var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .gateway-row__summary {
+    max-width: var(--dd-measure);
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (min-width: 64rem) {
+    .gateway-row__link {
+      margin-left: var(--row-indent);
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .gateway-row__link {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+
+    .gateway-row__link :global(.status-badge) {
+      grid-column: 2;
+    }
+  }
+</style>

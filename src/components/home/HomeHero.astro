@@ -1,0 +1,236 @@
+---
+// Home hero: one spatial scene, not two columns. The copy zone (left ~42%)
+// is part of the same composition as the neural field — the network starts
+// behind the text, bleeds past the top and right edges and continues into
+// section 01. No visible card, no frame around the scene. The H1 is the LCP
+// element: pure text. The island hydrates lazily (client:visible); its
+// mobile composition and no-JS fallback are fully server-rendered.
+import { hero, neuralLanes, ddSignature, STATUS } from "../../data/home.js";
+import NeuralWeb from "./NeuralWeb.jsx";
+import afFace from "./af-face.png";
+
+const statusLabels = Object.fromEntries(
+  Object.entries(STATUS).map(([key, value]) => [key, value.label]),
+);
+
+const sceneCopy = { mobileMore: "К разделу →" };
+---
+
+<section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-hero__copy">
+    <p class="home-hero__eyebrow">{hero.eyebrow}</p>
+    <h1 class="home-hero__title" id="home-hero-title">{hero.h1}</h1>
+    <p class="home-hero__offer">{hero.offer}</p>
+    <div class="home-hero__ctas">
+      <a class="home-hero__cta home-hero__cta--primary" href={hero.ctas.primary.href}>
+        {hero.ctas.primary.label}
+      </a>
+      <a class="home-hero__cta home-hero__cta--secondary" href={hero.ctas.secondary.href}>
+        {hero.ctas.secondary.label}
+      </a>
+      <a class="home-hero__cta home-hero__cta--tertiary" href={hero.ctas.tertiary.href}>
+        {hero.ctas.tertiary.label} →
+      </a>
+    </div>
+  </div>
+
+  <NeuralWeb
+    client:visible
+    lanes={neuralLanes}
+    dd={ddSignature}
+    ddPhoto={afFace.src}
+    media={hero.media}
+    statusLabels={statusLabels}
+    copy={sceneCopy}
+  />
+
+  <canvas class="home-hero__mfield" data-mfield aria-hidden="true"></canvas>
+
+  <p class="home-hero__annotation" aria-hidden="true">
+    Поле / 3 линии · 4 шлюза · полный стек
+  </p>
+</section>
+
+<script>
+  // Mobile-only ambient particle field behind the hero copy: the "power"
+  // layer for small screens (desktop keeps the WebGL scene untouched).
+  import { initBizField } from "../hub/biz-interactions.js";
+  const mfield = document.querySelector("[data-mfield]");
+  if (
+    mfield &&
+    window.matchMedia("(max-width: 47.99rem)").matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    initBizField(mfield);
+  }
+</script>
+
+<style>
+  .home-hero {
+    position: relative;
+    /* the first frame is exactly one screen under the floating header */
+    min-height: calc(100vh - 4.25rem);
+    min-height: calc(100svh - 4.25rem);
+    padding: var(--dd-space-md) var(--dd-container-gutter) var(--dd-space-lg);
+    overflow: clip;
+    /* Engineering coordinate layer: the network is drawn over it and the
+       same grid repeats quietly down the page. */
+    background-image:
+      radial-gradient(
+        ellipse 65% 55% at 68% 42%,
+        rgb(124 58 237 / 0.2),
+        transparent 65%
+      ),
+      linear-gradient(var(--dd-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--dd-grid-line) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      64px 64px,
+      64px 64px;
+  }
+
+  .home-hero__copy {
+    position: relative;
+    z-index: 3;
+    max-width: min(42rem, 44%);
+    margin-top: var(--dd-space-xs);
+    transition:
+      opacity var(--dd-duration-slow) var(--dd-ease-out),
+      filter var(--dd-duration-slow) var(--dd-ease-out);
+  }
+
+  /* when a branch opens, the copy recedes so the nodes stay readable */
+  .home-hero[data-neural-depth="1"] .home-hero__copy,
+  .home-hero[data-neural-depth="2"] .home-hero__copy {
+    opacity: 0.16;
+    filter: blur(3px);
+    pointer-events: none;
+  }
+
+  .home-hero[data-neural-depth="1"] .home-hero__annotation,
+  .home-hero[data-neural-depth="2"] .home-hero__annotation {
+    opacity: 0.25;
+  }
+
+  .home-hero__eyebrow {
+    margin: 0 0 var(--dd-space-sm);
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: var(--dd-eyebrow-size);
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+  }
+
+  .home-hero__title {
+    margin: 0;
+    font-size: var(--dd-hero-display);
+    line-height: 1.06;
+    letter-spacing: -0.015em;
+  }
+
+  .home-hero__offer {
+    margin: var(--dd-space-md) 0 0;
+    max-width: var(--dd-measure);
+    color: var(--dd-color-muted);
+    font-size: 1.0625rem;
+  }
+
+  .home-hero__ctas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--dd-space-sm) var(--dd-space-md);
+    margin-top: var(--dd-space-lg);
+  }
+
+  .home-hero__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--dd-node-size-min);
+    text-decoration: none;
+    transition:
+      background-color var(--dd-duration-fast) var(--dd-ease-out),
+      border-color var(--dd-duration-fast) var(--dd-ease-out),
+      color var(--dd-duration-fast) var(--dd-ease-out);
+  }
+
+  .home-hero__cta--primary {
+    padding: 0.6em 1.4em;
+    border: 1px solid var(--dd-color-action);
+    border-radius: var(--dd-radius-full);
+    background-color: var(--dd-color-action);
+    color: var(--dd-color-canvas);
+    font-weight: 700;
+  }
+
+  .home-hero__cta--primary:hover {
+    border-color: var(--dd-color-action-hover);
+    background-color: var(--dd-color-action-hover);
+    color: var(--dd-color-canvas);
+  }
+
+  .home-hero__cta--secondary {
+    padding: 0.6em 1.4em;
+    border: 1px solid var(--dd-color-border);
+    border-radius: var(--dd-radius-full);
+    color: var(--dd-color-text);
+  }
+
+  .home-hero__cta--secondary:hover {
+    border-color: var(--dd-color-action);
+    color: var(--dd-color-action-hover);
+  }
+
+  .home-hero__cta--tertiary {
+    padding: 0.6em 0;
+    color: var(--dd-color-action);
+  }
+
+  .home-hero__cta--tertiary:hover {
+    color: var(--dd-color-action-hover);
+  }
+
+  .home-hero__annotation {
+    position: absolute;
+    right: var(--dd-container-gutter);
+    bottom: var(--dd-space-xs);
+    z-index: 3;
+    margin: 0;
+    color: var(--dd-color-muted);
+    font-family: var(--dd-font-mono);
+    font-size: 0.625rem;
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .home-hero__mfield {
+    display: none;
+  }
+
+  @media (max-width: 47.99rem) {
+    .home-hero {
+      min-height: auto;
+      padding-top: var(--dd-space-lg);
+    }
+
+    .home-hero__mfield {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .home-hero__copy {
+      max-width: 100%;
+      margin-top: var(--dd-space-sm);
+    }
+
+    .home-hero__annotation {
+      position: static;
+      margin-top: var(--dd-space-md);
+    }
+  }
+</style>

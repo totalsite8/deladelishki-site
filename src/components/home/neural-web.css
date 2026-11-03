@@ -1,0 +1,498 @@
+/* NeuralWeb additions — WebGL canvas + 3D-node explanation plates.
+ * Shared scene classes live in neural-field.css; this file only carries
+ * what the WebGL engine adds. */
+
+/* Traveling contour glint for active plates: a barely-visible highlight
+ * orbiting the border (conic-gradient mask). Static fallback where
+ * @property is unsupported — the glint just stays put. */
+@property --glint-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.neural-node__button::before,
+.neural-web__tooltip::before,
+.neural-summary::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--glint-angle, 0deg),
+    transparent 0deg,
+    transparent 290deg,
+    color-mix(in srgb, var(--lane-accent, #f2a94b) 85%, white) 330deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--dd-duration-base) var(--dd-ease-out);
+  pointer-events: none;
+}
+
+.neural-node__button:hover::before,
+.neural-node__button:focus-visible::before,
+.neural-web__tooltip::before {
+  opacity: 0.75;
+  animation: neural-glint-spin 5.5s linear infinite;
+}
+
+@keyframes neural-glint-spin {
+  to {
+    --glint-angle: 360deg;
+  }
+}
+
+.neural-web__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* R3F canvas wrapper: same absolute fill; DOM overlay stays interactive
+ * above it, the click catcher above the canvas. */
+.neural-web__gl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* When the WebGL engine is active it owns the motion — CSS idle drift and
+ * static-edge SVG are not rendered/needed. */
+.neural--webgl .neural-lane {
+  animation: none;
+  transition:
+    opacity var(--dd-duration-base) var(--dd-ease-out),
+    filter var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.neural--webgl .neural-lane.is-active .neural-lane__label {
+  text-shadow:
+    0 0 18px var(--lane-accent),
+    0 0 60px color-mix(in srgb, var(--lane-accent) 60%, transparent);
+}
+
+/* Explanation plate pinned to a hovered 3D node (projected to screen). */
+.neural-web__tooltip {
+  position: absolute;
+  z-index: 9;
+  width: 12.5rem;
+  max-width: 40vw;
+  padding: 0.55em 0.8em;
+  border: 1px solid rgb(242 169 75 / 0.4);
+  border-left: 2px solid rgb(242 169 75 / 0.9);
+  border-radius: var(--dd-radius-sm);
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 90%, transparent);
+  box-shadow:
+    0 0 18px rgb(242 169 75 / 0.18),
+    0 4px 20px rgb(0 0 0 / 0.45);
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+}
+
+.neural-web__tooltip-kind {
+  margin: 0 0 0.15em;
+  color: #f2a94b;
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.neural-web__tooltip-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.neural-web__tooltip-text {
+  margin: 0.2em 0 0;
+  color: var(--dd-color-muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.neural-web__tooltip-status {
+  margin: 0.3em 0 0;
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Hover-safe field: invisible area covering the open branch so the lane
+ * does not collapse while the pointer travels to the child plates. */
+.neural-zone {
+  position: absolute;
+  z-index: 4;
+  pointer-events: auto;
+}
+
+/* Console-style tag above the label on every node plate. */
+.neural-node__button {
+  flex-wrap: wrap;
+  row-gap: 0.15em;
+}
+
+.neural-node__tag {
+  flex-basis: 100%;
+  color: var(--lane-accent, var(--dd-color-action));
+  font-family: var(--dd-font-mono);
+  font-size: 0.5625rem;
+  font-weight: 400;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* Terminal panel: the lane hint lives directly under its title, types its
+ * text in, never jumps to another corner of the screen. */
+.neural-term {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 15.5rem;
+  max-width: 38vw;
+  margin-top: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 45%, transparent);
+  border-radius: var(--dd-radius-sm);
+  background-color: color-mix(in srgb, var(--dd-color-canvas) 90%, transparent);
+  box-shadow:
+    0 0 20px color-mix(in srgb, var(--lane-accent) 18%, transparent),
+    0 6px 24px rgb(0 0 0 / 0.45);
+  font-family: var(--dd-font-mono);
+  opacity: 0;
+  transform: translateY(-5px);
+  pointer-events: none;
+  transition:
+    opacity 0.35s var(--dd-ease-out),
+    transform 0.35s var(--dd-ease-out);
+}
+
+.neural-term--left {
+  left: auto;
+  right: 0;
+}
+
+.neural-term[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  /* the panel never swallows clicks meant for the branch behind it;
+     only its own links are interactive */
+  pointer-events: none;
+}
+
+.neural-term a {
+  pointer-events: auto;
+}
+
+.neural-term__head {
+  margin: 0;
+  padding: 0.45em 0.8em;
+  border-bottom: 1px solid color-mix(in srgb, var(--lane-accent) 30%, transparent);
+  color: var(--lane-accent);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.neural-term__body {
+  margin: 0;
+  padding: 0.55em 0.8em;
+  min-height: 4.2em;
+  color: var(--dd-color-text);
+  font-size: 0.6875rem;
+  line-height: 1.5;
+}
+
+.neural-term__caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 0.9em;
+  margin-left: 0.15em;
+  background-color: var(--lane-accent);
+  vertical-align: -0.1em;
+  animation: neural-caret 1s steps(1) infinite;
+}
+
+@keyframes neural-caret {
+  50% {
+    opacity: 0;
+  }
+}
+
+.neural-term__list {
+  margin: 0;
+  padding: 0 0.8em 0.5em;
+  color: var(--dd-color-muted);
+  font-size: 0.625rem;
+  line-height: 1.5;
+}
+
+.neural-term__foot {
+  margin: 0;
+  padding: 0.45em 0.8em;
+  border-top: 1px solid color-mix(in srgb, var(--lane-accent) 30%, transparent);
+  font-size: 0.6875rem;
+}
+
+.neural-term__foot a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  color: var(--lane-accent);
+  text-decoration: none;
+}
+
+.neural-term__foot a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.neural-term--child {
+  top: calc(100% + 0.4rem);
+  width: 17rem;
+}
+
+/* Third-level plates: same presence as child nodes, live only while their
+ * parent child is focused (depth 2). */
+.neural-node--grand .neural-node__button {
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 65%, transparent);
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 96%, transparent);
+  color: var(--dd-color-text);
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 16px rgb(0 0 0 / 0.45);
+}
+
+.neural-node--grand.is-live .neural-node__button {
+  pointer-events: auto;
+}
+
+/* Click catcher: fills the empty scene space below every node layer. */
+.neural-catcher {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: auto;
+}
+
+/* Depth blur: the deeper we dive, the more the upper levels recede.
+ * Third-level plates of the focused branch stay crisp. */
+.neural[data-depth="2"] .neural-lane {
+  filter: blur(3px);
+}
+
+.neural[data-depth="2"] .neural-node--gateway .neural-node__button,
+.neural[data-depth="2"] .neural-node--child:not(.is-focused) .neural-node__button {
+  filter: blur(1.5px);
+}
+
+.neural[data-depth="2"] .neural-dd {
+  transition: filter var(--dd-duration-base) var(--dd-ease-out);
+  filter: blur(2px);
+}
+
+/* DD photo: processed portrait, circular, in the operator signature. */
+.neural-dd__photo {
+  width: clamp(4.5rem, 7vw, 6.5rem);
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: var(--dd-radius-full);
+  border: 1px solid rgb(242 169 75 / 0.55);
+  box-shadow:
+    0 0 24px rgb(242 169 75 / 0.28),
+    0 0 80px rgb(242 169 75 / 0.12);
+}
+
+/* node plates fade via engine/React opacity — smooth in static mode */
+.neural-node {
+  transition: opacity var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.neural--webgl .neural-node {
+  transition: none;
+}
+
+/* ---------- mobile navigator (interactive journey) ---------- */
+
+.mnav {
+  position: relative;
+  z-index: 1;
+  padding-top: var(--dd-space-sm);
+}
+
+.mnav__selector {
+  display: grid;
+  gap: var(--dd-space-xs);
+}
+
+.mnav__lane {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7em;
+  min-height: var(--dd-node-size-min);
+  padding: 0.7em var(--dd-space-sm);
+  border: 1px solid var(--dd-color-border);
+  border-left: 2px solid var(--lane-accent);
+  border-radius: var(--dd-radius-sm);
+  background-color: color-mix(in srgb, var(--dd-color-surface-raised) 85%, transparent);
+  color: var(--dd-color-text);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dd-duration-base) var(--dd-ease-out),
+    box-shadow var(--dd-duration-base) var(--dd-ease-out),
+    transform var(--dd-duration-base) var(--dd-ease-out);
+}
+
+.mnav__lane.is-active {
+  border-color: var(--lane-accent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--lane-accent) 30%, transparent);
+  transform: scale(1.01);
+}
+
+.mnav__lane-index {
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.6875rem;
+}
+
+.mnav__lane-label {
+  font-family: var(--dd-font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+  text-transform: uppercase;
+}
+
+.mnav__lane-status {
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mnav__hint {
+  margin: var(--dd-space-sm) 0 0;
+  color: var(--dd-color-muted);
+  font-family: var(--dd-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.mnav__panel {
+  margin-top: var(--dd-space-sm);
+  padding: var(--dd-space-md);
+  border: 1px solid color-mix(in srgb, var(--lane-accent) 40%, transparent);
+  border-radius: var(--dd-radius-md);
+  background:
+    radial-gradient(
+      ellipse 90% 40% at 50% 0%,
+      color-mix(in srgb, var(--lane-accent) 12%, transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--dd-color-canvas) 88%, transparent);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--lane-accent) 14%, transparent);
+}
+
+.mnav__sys {
+  margin: 0 0 var(--dd-space-xs);
+  color: var(--lane-accent);
+  font-family: var(--dd-font-mono);
+  font-size: 0.625rem;
+  letter-spacing: var(--dd-eyebrow-tracking);
+  text-transform: uppercase;
+}
+
+.mnav__summary {
+  margin: 0 0 var(--dd-space-md);
+  color: var(--dd-color-muted);
+  font-size: 0.875rem;
+}
+
+.mnav__gateway + .mnav__gateway {
+  margin-top: var(--dd-space-sm);
+}
+
+.mnav__gateway-title {
+  margin: 0 0 var(--dd-space-xs);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.mnav__topics {
+  display: grid;
+  gap: var(--dd-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mnav__topic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.1em var(--dd-space-sm);
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  padding: 0.6em var(--dd-space-sm);
+  border: 1px solid var(--dd-color-border);
+  border-left: 2px solid var(--lane-accent);
+  border-radius: var(--dd-radius-sm);
+  background-color: var(--dd-color-surface-raised);
+  color: var(--dd-color-text);
+  text-decoration: none;
+  transition:
+    border-color var(--dd-duration-fast) var(--dd-ease-out),
+    transform var(--dd-duration-fast) var(--dd-ease-out);
+}
+
+.mnav__topic:hover {
+  border-color: var(--lane-accent);
+  transform: translateX(2px);
+}
+
+.mnav__topic-label {
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.mnav__topic-summary {
+  grid-column: 1 / -1;
+  color: var(--dd-color-muted);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.mnav__topic-arrow {
+  color: var(--lane-accent);
+  font-weight: 700;
+}
+
+.mnav__open {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--dd-node-size-min);
+  margin-top: var(--dd-space-sm);
+  color: var(--lane-accent);
+  font-weight: 700;
+  text-decoration: none;
+}

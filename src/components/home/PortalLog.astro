@@ -1,0 +1,66 @@
+---
+// Section 05 — portal status log: real stages only, mono voice of the
+// system. Replaces "latest materials" until real content exists; later this
+// becomes "Свежие материалы" and the log moves to the footer.
+import { portalLog } from "../../data/home.js";
+import SectionHeading from "./SectionHeading.astro";
+---
+
+<section class="home-section" aria-labelledby="log-title">
+  <div class="home-section__inner">
+    <SectionHeading
+      eyebrow="05 / Статус портала"
+      title="Журнал развития"
+      lead="Портал растёт открыто: здесь — реальные этапы, без обещаний по календарю."
+    />
+    <ol class="portal-log">
+      {
+        portalLog.map((entry) => (
+          <li class="portal-log__entry">
+            <span class="portal-log__date">{entry.date}</span>
+            <span class="portal-log__text">{entry.text}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .portal-log {
+    display: grid;
+    gap: var(--dd-space-sm);
+    max-width: var(--dd-measure-wide);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .portal-log__entry {
+    display: grid;
+    gap: 0.2em var(--dd-space-md);
+    padding: var(--dd-space-sm) 0;
+    border-bottom: 1px solid var(--dd-color-border);
+  }
+
+  .portal-log__date {
+    color: var(--dd-color-action);
+    font-family: var(--dd-font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: var(--dd-eyebrow-tracking);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .portal-log__text {
+    color: var(--dd-color-muted);
+    font-size: 0.9375rem;
+  }
+
+  @media (min-width: 48rem) {
+    .portal-log__entry {
+      grid-template-columns: 8rem minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+</style>

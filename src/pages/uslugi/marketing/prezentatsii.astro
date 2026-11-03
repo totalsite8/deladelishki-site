@@ -1,0 +1,6 @@
+---
+import ServiceDetail from "../../../components/hub/ServiceDetail.astro";
+import { findServiceDetail } from "../../../data/service-details/index.js";
+---
+
+<ServiceDetail detail={findServiceDetail("marketing", "prezentatsii")} />

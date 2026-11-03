@@ -1,10 +1,22 @@
 ---
+// Home page "OPERATOR'S UNIVERSE" release 1.0: hero with the interactive
+// CoreScene, four gateways, three audience lanes (business / learning / AI),
+// the honest portal log, about-Danila bridge and direct contacts.
+// All copy lives in src/data/home.js; contacts come from src/data/site.js.
 import BaseLayout from "../layouts/BaseLayout.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+import GatewaySection from "../components/home/GatewaySection.astro";
+import BusinessLane from "../components/home/BusinessLane.astro";
+import LearningLane from "../components/home/LearningLane.astro";
+import AiLane from "../components/home/AiLane.astro";
+import PortalLog from "../components/home/PortalLog.astro";
+import AboutDanila from "../components/home/AboutDanila.astro";
+import HomeContacts from "../components/home/HomeContacts.astro";
 import { personJsonLd, websiteJsonLd } from "../lib/seo.js";
 
-const title = "Dela Delishki — digital-портал Данилы Подшивалова";
+const title = "Данила Подшивалов — маркетинг, digital и автоматизация";
 const description =
-  "Услуги, кейсы, блог, база промптов, курсы и инструменты: разработка, дизайн, маркетинг и AI от Данилы Подшивалова.";
+  "Личный digital-портал Данилы Подшивалова: услуги (разработка, дизайн, маркетинг, AI, фотосъёмка, обучение), кейсы, блог, база промптов, курсы и инструменты — как одна управляемая система.";
 ---
 
 <BaseLayout
@@ -16,6 +28,134 @@ const description =
   jsonLd={[websiteJsonLd("ru"), personJsonLd()]}
 >
   <main>
-    <h1>Dela Delishki — digital-портал Данилы Подшивалова</h1>
+    <HomeHero />
+    <GatewaySection />
+    <BusinessLane />
+    <LearningLane />
+    <AiLane />
+    <PortalLog />
+    <AboutDanila />
+    <HomeContacts />
   </main>
 </BaseLayout>
+
+<script>
+  // Section reveal + background parallax for the home page. Vanilla,
+  // transform/opacity only, honors reduced motion via CSS baseline.
+  const inners = document.querySelectorAll(
+    ".home-section__inner, .home-contacts > .home-section__inner",
+  );
+  if ("IntersectionObserver" in window) {
+    inners.forEach((el) => el.classList.add("reveal"));
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-in");
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08 },
+    );
+    inners.forEach((el) => io.observe(el));
+  }
+
+  // subtle background parallax on tinted sections
+  const parallaxSections = document.querySelectorAll("[data-parallax]");
+  if (parallaxSections.length > 0) {
+    let queued = false;
+    const update = () => {
+      const vh = window.innerHeight;
+      parallaxSections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        const progress = (rect.top + rect.height / 2 - vh / 2) / vh;
+        section.style.setProperty("--par", `${(progress * -46).toFixed(1)}px`);
+      });
+      queued = false;
+    };
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!queued) {
+          queued = true;
+          requestAnimationFrame(update);
+        }
+      },
+      { passive: true },
+    );
+    update();
+  }
+</script>
+
+<style>
+  /* Shared section rhythm for the home page (components opt into
+   * .home-section / .home-section__inner; the hero and contacts define
+   * their own composition). */
+  :global(.home-section) {
+    padding: var(--dd-space-xl) var(--dd-container-gutter);
+    scroll-margin-top: 5rem;
+  }
+
+  :global(.home-section__inner) {
+    width: 100%;
+    max-width: var(--dd-container-max);
+    margin: 0 auto;
+  }
+
+  /* Section separation: each block has its own tinted atmosphere with a
+     slow parallax drift of the glow (--par set by the scroll script). */
+  :global(#dlya-biznesa) {
+    background:
+      radial-gradient(
+        ellipse 60% 55% at 85% calc(20% + var(--par, 0px)),
+        rgb(124 58 237 / 0.1),
+        transparent 65%
+      ),
+      #0e0a17;
+  }
+
+  :global(#dlya-obucheniya) {
+    background:
+      radial-gradient(
+        ellipse 55% 50% at 12% calc(30% + var(--par, 0px)),
+        rgb(240 176 120 / 0.07),
+        transparent 65%
+      ),
+      #0c0913;
+  }
+
+  :global(#dlya-ai-praktikov) {
+    background:
+      radial-gradient(
+        ellipse 55% 50% at 88% calc(25% + var(--par, 0px)),
+        rgb(127 195 240 / 0.07),
+        transparent 65%
+      ),
+      #0e0a17;
+  }
+
+  :global(#o-danile) {
+    background:
+      radial-gradient(
+        ellipse 50% 45% at 20% calc(70% + var(--par, 0px)),
+        rgb(167 139 250 / 0.08),
+        transparent 65%
+      ),
+      #0c0913;
+  }
+
+  /* reveal on scroll (added by the script; visible by default without JS) */
+  :global(.reveal) {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.6s var(--dd-ease-out),
+      transform 0.6s var(--dd-ease-out);
+  }
+
+  :global(.reveal.is-in) {
+    opacity: 1;
+    transform: none;
+  }
+</style>
